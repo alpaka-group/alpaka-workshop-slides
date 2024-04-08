@@ -1,1 +1,2 @@
-Presentation summarizing main features, advantages and data structures of Alpaka.
+AlpakaOverview: A general introduction to Alpaka.
+AlpakaProgramming: An introduction to Alpaka Programming.
