@@ -1,18 +1,3 @@
-# Alpaka Training and Documentation Links
-
-- **Training links for October 2024:**
-  - [HandsOn Session Documentation](https://github.com/mehmetyusufoglu/alpaka-workshop-slides/blob/workshopOct2024/other-events/2024-October-Workshop/alpaka_merged_with_copy_buttons.md)
-- **Git Repository:** [https://github.com/alpaka-group/alpaka](https://github.com/alpaka-group/alpaka)
-- **Alpaka Documentation:**
-  - Main Page: [https://alpaka.readthedocs.io/en/latest/index.html](https://alpaka.readthedocs.io/en/latest/index.html)
-  - [Installation Guide](https://alpaka.readthedocs.io/en/latest/)
-  - [Cheat Sheet](https://alpaka.readthedocs.io/en/latest/basic/cheatsheet.html)
-  - [CMake Variables](https://alpaka.readthedocs.io/en/latest/advanced/cmake.html)
-  - [API Docs](https://alpaka-group.github.io/alpaka/)
-- **Webinar May 2024: Alpaka concepts and usage**
-  - [Webinar Slides (pdf)](https://github.com/alpaka-group/alpaka-workshop-slides/blob/d40c44081c53041ce618205167c130c973c9b41e/slides-2024/UsingAlpakaForPlasmaPepscWebinar28May2024.pdf)
-  
-
 
 # Hands-on Session Guide
 
