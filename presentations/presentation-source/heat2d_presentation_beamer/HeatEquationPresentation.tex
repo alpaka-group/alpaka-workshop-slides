@@ -1,0 +1,1014 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Beamer Presentation
+% LaTeX Template
+% Version 1.0 (10/11/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND THEMES
+%----------------------------------------------------------------------------------------
+
+\documentclass[9pt]{beamer}
+
+\mode<presentation> {
+
+\usetheme{Berlin}
+
+%\setbeamertemplate{footline} % To remove the footer line in all slides uncomment this line
+\setbeamertemplate{footline}[page number] % To replace the footer line in all slides with a simple slide count uncomment this line
+
+%\setbeamertemplate{navigation symbols}{} % To remove the navigation symbols from the bottom of all slides uncomment this line
+}
+
+\usepackage{graphicx} % Allows including images
+\usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
+\usepackage{verbatim} % Allows verbatim environments for code
+\usepackage{textcomp} % Allows correct display of text in \texttt{}
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{darkgreen}{rgb}{0.0, 0.5, 0.0}  % Dark Green
+\definecolor{darkpurple}{rgb}{0.5, 0.0, 0.5} % Dark Purple
+\definecolor{verylightblue}{rgb}{0.95, 0.98, 1}
+
+\lstdefinestyle{mystyle}{
+    language=C++,
+    linewidth=1.02\textwidth,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=[1]\color{darkgreen}\bfseries, % C++ keywords
+    keywordstyle=[2]\color{blue}, % alpaka related keywords
+    identifierstyle=\color{black},
+    commentstyle=\fontfamily{dvs}\selectfont\color{gray}, % Using Inconsolata for comments
+    stringstyle=\color{red},
+    numberstyle=\tiny\color{gray},
+    backgroundcolor=\color{verylightblue}, 
+    numbers=left,
+    numbersep=10pt,
+    tabsize=2,
+    breaklines=true,
+    showstringspaces=false,
+    escapeinside={(*@}{@*)},
+    alsoletter={:}, % treat ':' as part of a keyword
+    morekeywords={[1]auto, using, namespace, nullptr, static_cast, int, float, double, size_t, for, if, else, while, return}, % C++ keywords
+    morekeywords={[2]alpaka, alpaka::PlatformCpu, alpaka::Vec, alpaka::Buf, alpaka::DevCpu, alpaka::Dev, alpaka::Platform, alpaka::KernelCfg, alpaka::WorkDivMembers, alpaka::AccGpuCudaRt, alpaka::AccGpuHipRt, alpaka::AccCpuThreads, alpaka::AccCpuOmp2Threads, alpaka::AccCpuOmp2Blocks, alpaka::AccCpuTbbBlocks, alpaka::AccCpuSerial, alpaka::AccGpuCudaRt, ALPAKA_FN_ACC} % alpaka keywords
+}
+
+\lstset{style=mystyle}
+
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+
+\title{Heat Equation Solution using alpaka} % The short title appears at the bottom of every slide, the full title is only on the title page
+
+\author{alpaka Team} % Your name
+\institute[HZDR] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
+{
+HZDR \\ % Your institution for the title page
+\medskip
+\textit{} % Your email address
+}
+\date{\today} % Date, can be changed to a custom date
+
+\begin{document}
+
+\begin{frame}
+\titlepage % Print the title page as the first slide
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Overview} % Table of contents slide
+\tableofcontents % Automatically prints the table of contents based on \section{} and \subsection{} commands
+\end{frame}
+
+\section{Steps filling a buffer in parallel}
+\begin{frame}
+\frametitle{Steps of Filling a Buffer in Parallel}
+\begin{columns}
+
+    % First column
+    \begin{column}{0.55\textwidth} % 50% of the width
+    \begin{enumerate}
+     \item Select the accelerator
+     \item Create host-device, acc-device and the queue
+     \item Allocate host and device memory
+     \item Decide how to paralelise: set work-division
+     \item Decide where will the parallel and non-parallel parts of the code run
+     \item Create the kernel instance and execute kernel
+     \item Copy the result from Acc (e.g GPU) back to the host buffer.
+    \end{enumerate}
+    \end{column}
+
+    % Second column
+    \begin{column}{0.45\textwidth} % 50% of the width
+        \centering
+        \includegraphics[width=\linewidth]{Screenshot from 2024-09-25 12-39-55.png} % Replace with your image
+        %\caption{Filling A Buffer in Parallel}
+    \end{column}
+
+\end{columns}
+
+
+    \end{frame}
+
+%----------------------------------------------------------------------------------------
+%	PRESENTATION SLIDES
+%----------------------------------------------------------------------------------------
+
+%------------------------------------------------
+%------------------------------------------------
+\section{Memory Allocation and Passing to Kernel}
+
+
+ \begin{frame}[fragile]
+\frametitle{Allocate memory at Host and at Device}
+
+\textbf{Define number of dim and index type}
+\begin{lstlisting}
+using Dim = alpaka::DimInt<2u>; // Number of dim: 2 as a type
+using Idx = std::size_t; // Index type of the threads and buffers
+ \end{lstlisting}
+
+\textbf{Define domain and halo extents}
+\begin{lstlisting}
+   // alpaka::Vec is a static array similar to std::array.
+   // Dim is a compile-time constant, which is 2.
+   // Create a static array of size Dim.
+   
+    constexpr alpaka::Vec<Dim, Idx> numNodes{64, 64};
+    constexpr alpaka::Vec<Dim, Idx> haloSize{2, 2};
+    constexpr alpaka::Vec<Dim, Idx> extent = numNodes + haloSize;
+\end{lstlisting}
+
+\textbf{Allocate memories at host and accelerator}
+\begin{lstlisting}
+    // Allocate memory for host-buffer
+    auto uBufHost = alpaka::allocBuf<double, Idx>(devHost, extent);
+
+    // Allocate memory for accelerator buffer
+    auto uBufAcc = alpaka::allocBuf<double, Idx>(devAcc, extent);
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Allocated area at the memory}
+\hspace{-0.4\baselineskip}
+\small
+Let's assume that 105 item with 3-byte each will be allocated to pass to the kernel. The pitch value (actually the row-pitch) depends on the GPU or CPU type.
+
+\begin{figure}
+\hspace{-1.2\baselineskip}
+   \centering
+   \includegraphics[width=0.73\linewidth]{Screenshot from 2024-09-17 17-37-26.png}
+   \label{fig:enter-label}
+\end{figure}
+\hspace{0.1\baselineskip}
+\begin{figure}
+\hspace{-1.2\baselineskip}
+   \centering
+   \includegraphics[width=0.75\linewidth]{Screenshot from 2024-09-17 17-36-44.png}
+   \label{fig:enter-label}
+\end{figure}
+\end{frame}
+
+\begin{comment} %%%%%%%%%%%%%%%%%%%%%%
+ \begin{frame}[fragile]
+\frametitle{Copy the data to the device, use alpaka::Queue}
+
+\begin{lstlisting}
+    using Acc = alpaka::AccCpuSerial<Dim, Idx>;
+    auto const platformAcc = alpaka::Platform<Acc>{};
+    auto const devAcc = alpaka::getDevByIdx(platformAcc, 0);
+    // A queue is needed for all acc related operations
+    alpaka::Queue<Acc, alpaka::Blocking> queue(devAcc);
+
+    // Define the 2D extents (dimensions)
+    Vec const extentA(static_cast<Idx>(M), static_cast<Idx>(K));
+
+    // Allocate host memory, the memory size is determined by extent
+    auto bufHostA = alpaka::allocBuf<DataType, Idx>(devHost, extentA);
+
+    // Allocate device memory
+    auto bufDevA = alpaka::allocBuf<DataType, Idx>(devAcc, extentA);
+
+    // Copy data to device, use host buffer and device buffer
+    // Queue must be an accelerator queue
+    alpaka::memcpy(queue, bufDevA, bufHostA);
+
+\end{lstlisting}
+\end{frame}
+\end{comment} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]
+\small
+\frametitle{Passing multi dimensional buffer to the kernel}
+ \begin{itemize}
+ \item \textbf{Pass 3 variables for a buffer: pointer, row-pitch, and datasize}
+
+Multi-dimensional memory allocated in memory uses aligned rows.
+Hence, if a pointer of a 2D buffer is passed to the kernel as a pointer; 2 additional values \textbf{pitch} and item \textbf{data-size} should also be passed.
+
+        \lstset{basicstyle=\ttfamily\scriptsize} 
+        \begin{lstlisting}
+    // Signature of function operator of the Kernel
+    template<typename TAcc, typename TDim, typename TIdx>
+    ALPAKA_FN_ACC auto operator()(
+        TAcc const& acc,
+        double* const bufData,
+        // 2 variables row-pitch and data-type size
+        alpaka::Vec<TDim, TIdx> const pitch,
+        double dx,
+        double dy) const -> void
+        \end{lstlisting}
+
+        \hspace{-0.2\baselineskip}
+
+ 
+\item \textbf{Simple Alternative:} Pass an \textbf{alpaka mdspan} object
+\lstset{basicstyle=\ttfamily\scriptsize} 
+\begin{lstlisting}
+    template<typename TAcc, typename TDim, typename TIdx, typename TMdSpan>
+    ALPAKA_FN_ACC auto operator()(
+        TAcc const& acc,
+        TMdSpan uAccMdSpan
+        ...) const -> void
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+
+
+
+\section{Define InitilizeBuffer Kernel and Execute}
+%----------------------------------------------
+
+\begin{frame}
+\frametitle{The Kernel to Initialize Heat Values}
+\textbf{Calculate and set initial heat values, the $u^{0}$ matrix, by running a grid of threads.}
+\hspace{2.0\baselineskip}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\linewidth]{Screenshot from 2024-09-19 18-45-43.png}
+    \label{fig:enter-label}
+\end{figure}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{The Kernel to Initialize Heat Values}
+\small
+
+\textbf{ The \textit{InitializeBufferKernel} fills the given buffer at the accelerator device (e.g GPU)}
+    \lstset{basicstyle=\ttfamily\scriptsize}
+    Prepare kernel to set initial heat values
+    \begin{itemize}
+    \item \textbf{Thread Index:} Find thread index in the kernel to be used as index to set 2D buffer.
+    \item \textbf{Initial Condition at the point:} Find analytically the heat value at the point which has coordinates equal to the 2D thread index.
+    \item \textbf{Memory Adress in Buffer:} Calculate the corresponding memory adress in buffer using thread index. Take into account pitch and data-size
+    \item \textbf{Set Value at the Adress:} Set the data at the memory position to the calculated initial condition.
+    \end{itemize}
+     \lstset{basicstyle=\ttfamily\tiny}
+    \begin{lstlisting}
+    template<typename TAcc, typename TDim, typename TIdx>
+    ALPAKA_FN_ACC auto operator()(
+        TAcc const& acc, double* const bufData,
+        alpaka::Vec<TDim, TIdx> const pitch, double dx, double dy) const -> void {
+    // Get 2D thread index using alpaka index function
+    .....
+    // Calculate analytical solution at point
+    auto heatAtPointValue = analyticalSolution(acc, gridThreadIdx[1] * dx, gridThreadIdx[0] * dy, 0.0);
+    // Calculate data position in buffer, from thread index and pitches
+    auto ptr = getElementPtr(bufData, gridThreadIdx, pitch);
+    // Set the value using the adress
+    *ptr    = heatPointValue;
+    } // function operator
+    \end{lstlisting}
+
+\end{frame}
+
+%------------------------------------------------
+
+%------------------------------------------------
+% mention dont provide code or detailed info
+
+
+
+\begin{frame}
+\frametitle{Hands-On Session}
+\begin{center}
+      \Huge \textbf{Hands-on Session: Filling an accelerator buffer paralelly}
+  \end{center}
+\end{frame}
+
+%------------------------------------------------
+\section{Introduction for Heat Equation} % Sections can be created to organize your presentation into discrete blocks
+%------------------------------------------------
+\begin{frame}
+\vspace{-0.1\baselineskip} % This moves the text up by approximately two lines
+
+\frametitle{The Heat Equation}
+\scriptsize
+\begin{itemize}
+    \item \textbf{The heat equation models the Heat Diffusion over time in a given medium.}
+    
+    \[
+    \frac{\partial u(x, y, t)}{\partial t} = \alpha \left( \frac{\partial^2 u(x, y, t)}{\partial x^2} + \frac{\partial^2 u(x, y, t)}{\partial y^2} \right)
+    \]
+\textbf{Difference approximations for Time and Spatial Derivatives:}
+\begin{minipage}{0.45\textwidth}
+
+     \[
+\frac{\partial u(x, y, t)}{\partial t}\Bigg|_{t = t^n} \approx \frac{u_{i,j}^{n+1} - u_{i,j}^n}{\Delta t}
+\]
+\end{minipage}
+\begin{minipage}{0.45\textwidth}
+
+\[
+\frac{\partial^2 u(x, y, t)}{\partial x^2}\Bigg|_{x = x_i, y = y_j} \approx \frac{u_{i+1,j}^n - 2u_{i,j}^n + u_{i-1,j}^n}{\Delta x^2}
+\]
+\end{minipage}
+\item \textbf{Resulting difference equation:}
+\[
+u_{i,j}^{n+1} = u_{i,j}^n + \alpha \Delta t \left( \frac{u_{i+1,j}^n - 2u_{i,j}^n + u_{i-1,j}^n}{\Delta x^2} + \frac{u_{i,j+1}^n - 2u_{i,j}^n + u_{i,j-1}^n}{\Delta y^2} \right)
+\]
+\end{itemize}
+\vspace{-0.3\baselineskip}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.45\linewidth,height=0.35\linewidth]{Screenshot from 2024-08-30 14-04-56.png}
+\end{figure}
+\end{frame}
+
+\section{Main Simulation Loop of Heat Eqn.}
+\begin{frame}
+\frametitle{Main Simulation Loop: Leveraging Parallelism}
+\begin{itemize}
+    \item \textbf{Initialization:}
+    \begin{itemize}
+        \item Define the "host device" and "accelerator device". The "Host" and "Device" in short.
+        \item Set initial conditions and boundary conditions.
+        \item Allocate data buffers to host and device.
+        \item Copy data from host to device buffer to pass to the kernel.
+        \item Define parallelisation strategy (determine block size).
+    \end{itemize}
+    \item \textbf{Simulation Loop:}
+    \begin{itemize}
+        \item \textbf{Step 1:} Execute \texttt{StencilKernel} to compute next values.
+        \item \textbf{Step 2:} Apply boundary conditions using \texttt{BoundaryKernel}.
+        \item \textbf{Step 3:} Swap buffers for the next iteration so that calculated  $u_{i,j}^{n+1}$ becomes the $u_{i,j}^{n}$ for the next step.
+    \end{itemize}
+    \item \textbf{Parallel Efficiency:}
+    \begin{itemize}
+        \item Subdomains are processed in parallel, with halos ensuring data consistency and correct boundary conditions.
+        \item Optimization: Shared memory optimizes memory access within each block using chunks of data.
+    \end{itemize}
+    \item \textbf{Validation}
+\end{itemize}
+\end{frame}
+%------------------------------------------------
+\section{Heat Eqn. Domain and Stencil}
+%------------------------------------------------
+% All domain etc
+\begin{frame}
+\frametitle{Parallel Heat Equation Solution}
+\vspace{-0.5\baselineskip}
+\scriptsize
+    \begin{itemize}
+        \item \textbf{Data Parallelism:} Each point on the grid can be updated independently based on its neighbors, enabling parallel computation.
+        \item \textbf{Stencil Operations:} Stencil is a core computational pattern in PDE solvers. Updates a grid point in time using its immediate neighbors (left, right, up, down) according to the difference equation. A 5-point stencil is needed.
+    \end{itemize}    
+    %first image without blocks
+    \vspace{-0.5\baselineskip}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.6\linewidth]{Screenshot from 2024-08-30 14-18-30.png}
+        \label{fig:enter-label}
+    \end{figure}
+    \begin{itemize}
+        \item \textbf{Halo Region for BC:} A layer of grid cells surrounding the problem domain for Boundary Conditions.
+        \begin{itemize}
+            \item Facilitates stencil operations at the boundaries of subdomains.
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Calculation of $u_{i,j}^{n+1}$ from $u_{i,j}^{n}$}
+\vspace{-0.1\baselineskip}
+    \begin{itemize}
+        \item Each kernel execution by alpaka calculates $u_{i,j}^{n+1}$ using $u_{i,j}^{n}$
+        \item Each heat point is separately calculated by a thread using \textbf{Frobenious Inner Product}
+        \item The Frobenius inner product between matrix \( S \) and matrix \( U_{i,j} \) is:
+\[
+ u_{i,j}^{n+1} = \langle S, U^{n}_{i,j} \rangle_F = \sum_{m=1}^{M} \sum_{n=1}^{K} s_{m,k} u_{m,k}
+\]
+        \item $S$ and $U^{n}_{0,0}$ is used  by a thread to calculate $u_{0,0}^{n+1}$
+    \end{itemize}
+    \begin{figure}
+        \centering
+            \includegraphics[width=0.75\linewidth, height=0.4\textheight]{Screenshot from 2024-09-22 00-16-53.png}
+                \caption{First thread calculates $u_{0,0}^{n+1}$ using \textbf{Frobenious Inner Product} of 3x3 matrices}
+        \label{fig:enter-label}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+\vspace{-0.9\baselineskip}
+    \begin{itemize}
+        \item Another thread calculates $u_{0,1}^{n+1}$  using $S$ and $U^{n}_{0,1}$  
+    \end{itemize}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.8\linewidth]{Screenshot from 2024-09-21 23-44-50.png}
+        \caption{Second thread calculates $u_{0,1}^{n+1}$ using }
+        \label{fig:enter-label}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+\frametitle{Stencil Kernel Execution by a grid of threads}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.86\linewidth]{Screenshot from 2024-09-19 23-09-33.png}
+\end{figure}
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Complete Heat Equation solution}
+\vspace{-0.77\baselineskip}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.92\linewidth,height=0.91\textheight]{Screenshot from 2024-09-25 12-59-58}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{The Stencil Kernel Steps}
+\small
+ \textbf{\textit{StencilKernel} Calculates Updated Heat  $u_{i,j}^{n+1}$ using $u_{i,j}^{n}$ }
+    \lstset{basicstyle=\ttfamily\scriptsize} 
+
+    \begin{itemize}
+    \item \textbf{Thread Index:} Find thread index in the kernel to be used as center of 3x3 stencil.
+    \item \textbf{Memory Adress in Buffer:} Calculate the corresponding memory adress in buffer using thread index. Take into account pitch and data-size
+    \item \textbf{Calculate new heat value:} Calculate $u_{i,j}^{n+1}$ using \textbf{Frobenious Inner Product} of 3x3 matrices
+    \item \textbf{Set Value at the Adress:} Set the data at the memory position to the calculated initial condition.
+    \end{itemize}
+    \begin{lstlisting}
+struct StencilKernel
+{
+    template<typename TAcc, typename TDim, typename TIdx>
+    ALPAKA_FN_ACC auto operator()(
+        TAcc const& acc,
+        double const* const uCurrBuf, double* const uNextBuf,
+        alpaka::Vec<TDim, TIdx> const chunkSize,
+        alpaka::Vec<TDim, TIdx> const pitchCurr, alpaka::Vec<TDim, TIdx> const pitchNext,
+        double const dx,double const dy, double const dt) const -> void
+    {
+        ...
+    }
+};
+    \end{lstlisting}
+\end{frame}
+
+%\begin{frame}[fragile]
+%\frametitle{Applying Boundary Conditions in Parallel}
+%\scriptsize
+%\textbf{Boundary Kernel:} Ensures correct values at the boundaries of the grid.
+%\lstset{basicstyle=\ttfamily\tiny}
+%    \begin{lstlisting}
+%         // Get indexes
+%        auto const gridBlockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc);
+%        auto const blockThreadIdx = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc);
+%        auto const threadIdx1D = alpaka::mapIdx<1>(blockThreadIdx, blockThreadExtent)[0u];
+%        auto const blockStartIdx = gridBlockIdx * chunkSize;
+
+%        // Lambda function to apply boundary conditions
+%        auto applyBoundary = [&](auto const& globalIdxStart, auto const length, bool isRow)
+%        {
+%            for(auto i = threadIdx1D; i < length; i += numThreadsPerBlock)
+%            {
+%                auto idx2D = globalIdxStart + (isRow ? alpaka::Vec<Dim, Idx>{0, i} : alpaka::Vec<Dim, Idx>{i, 0});
+%                auto elem = getElementPtr(uBuf, idx2D, pitch);
+%                *elem = exactSolution(idx2D[1] * dx, idx2D[0] * dy, step * dt);
+%            }
+%        };
+
+%        // Apply boundary conditions for the top row
+%        if(gridBlockIdx[0] == 0)
+%        {
+%            applyBoundary(blockStartIdx + alpaka::Vec<Dim, Idx>{0, 1}, chunkSize[1], true);
+%        }
+%    \end{lstlisting}
+     
+%\end{frame}
+
+\begin{frame}
+\frametitle{Hands-On Session}
+\begin{center}
+      \Huge \textbf{Hands-on Session:Stencil Kernel}
+  \end{center}
+\end{frame}
+
+\section{Setting up the stage to run kernels}
+
+\begin{frame}
+\frametitle{alpaka Basics }
+\begin{center}
+      \Huge \textbf{Setting up the stage to run kernels}
+  \end{center}
+\begin{enumerate}
+ \item Selecting the accelerator and host devices
+ \item Allocating and setting host and accelerator device memory.
+ \item Alpaka Vector, Buffer and View?
+ \item Passing data to the accelarator
+ \item WorkDiv
+  \item Define Queue
+\end{enumerate}
+    \end{frame}
+
+
+%------------------------------------------------
+% mention dont provide code or detailed info
+\begin{frame}[fragile]
+\frametitle{Accelerator, Device and Host}
+\textbf{Define number of dim and index type}
+\begin{lstlisting}
+using Dim = alpaka::DimInt<2u>; // Number of dim: 2 as a type
+using Idx = std::size_t; // Index type of the threads and buffers
+\end{lstlisting}
+
+\textbf{Define the accelerator}
+\begin{lstlisting}
+// AccGpuCudaRt, AccGpuHipRt, AccCpuThreads, AccCpuSerial,
+// AccCpuOmp2Threads, AccCpuOmp2Blocks, AccCpuTbbBlocks 
+using Acc = alpaka::AccGpuHipRt<Dim, Idx>;
+using DevAcc = alpaka::Dev<Acc>;
+\end{lstlisting}
+\textbf{Select a device from platform of Acc}
+\begin{lstlisting}
+auto const platform = alpaka::Platform<Acc>{};
+auto const devAcc = alpaka::getDevByIdx(platform, 0);
+\end{lstlisting}
+\textbf{Select a host and hostype to allocate memory for data}
+\begin{lstlisting}
+// Get the host device for allocating memory on the host.
+auto const platformHost = alpaka::PlatformCpu{};
+auto const devHost = alpaka::getDevByIdx(platformHost, 0);
+// Host device type is needed, still not known
+using DevHost = alpaka::DevCpu;
+\end{lstlisting}
+\end{frame}
+
+\begin{frame} [fragile]
+\frametitle{What is Accelerator}
+
+
+Accelerator hides hardware specifics behind alpaka’s abstract API
+\lstset{basicstyle=\ttfamily\scriptsize}
+\begin{itemize}
+\item On Host: Accelerator is a type. A Meta-parameter for choosing correct physical device and dependent types
+\begin{lstlisting}
+using Acc = acc::AccGpuHipRt<Dim, Idx>;
+ \end{lstlisting}
+\item Inside Kernel: Accelerator is a variable. Contains thread state, provides access to alpaka’s device-side API
+\begin{itemize}
+\item The Accelerator provides the means to access to the indices
+ \begin{lstlisting}
+// get thread index on the grid
+auto gridThreadIdx = alpaka::getIdx<Grid, Threads>(acc);
+// get block index on the grid
+auto gridBlockIdx = alpaka::getIdx<Grid, Blocks>(acc);
+ \end{lstlisting}
+\item The Accelerator gives access to alpaka’s shared memory (for threads inside the same block)
+ \begin{lstlisting}
+// allocate a variable in block shared static memory
+auto& sdata = alpaka::declareSharedVar<double[T_SharedMemSize1D], __COUNTER__>(acc);
+// get pointer to the block shared dynamic memory
+auto* const sharedN = alpaka::getDynSharedMem<float>(acc);
+ \end{lstlisting}
+\item Enables synchronization on the block level
+ \begin{lstlisting}
+// synchronize all threads within the block
+alpaka::syncBlockThreads(acc);
+ \end{lstlisting}
+\end{itemize}
+\end{itemize}
+
+\end{frame}
+
+\begin{frame} [fragile]
+\frametitle{What is alpaka Buffer, Vector and View}
+\begin{itemize}
+ \item alpaka::Buf is multi-dimensional dynamic (runtime sized) container.
+ \begin{itemize}
+ \item Contains memory adress, extent, datatype and the device that memory belongs to!
+ \item Since buffer already knows the it's device and extent; device to device copy is easy in alpaka
+ \item Supports [] operator but not [][].
+ \lstset{basicstyle=\ttfamily\scriptsize}
+ \begin{lstlisting}
+ // Allocate buffers
+ auto bufCpu = alpaka::allocBuf<float, Idx>(devCpu, extent);
+ auto bufGpu = alpaka::allocBuf<float, Idx>(devGpu, extent);
+ ....
+ // Copy buffer from CPU to GPU - destination comes first
+ alpaka::memcopy(gpuQueue, bufGpu, bufCpu);
+ // cuda way: cudaMemcpy(b_d, b_host, sizeof(float) * N, cudaMemcpyHostToDevice);
+ \end{lstlisting}
+ \end{itemize}
+ \item alpaka::Vec is a static 1D array. \texttt{alpaka::Vec\textless SizeOfArrayT,DataT\textgreater\space myVec};
+ \item alpaka::View is a non-owning view to an already allocated memory, so that it can be used in alpaka::memcpy
+\end{itemize}
+    \end{frame}
+
+
+\begin{frame} [fragile]
+\frametitle{What is alpaka::Queue}
+\begin{itemize}
+ \item alpaka::Queue is “a queue of tasks”.
+ \item Used for sycnhronization of tasks like memcpy or kernel-execution
+ \item Queue is always FIFO, everything is sequential (in-order) inside the alpaka::queue
+ \item If there is a second queue, queue feature "blocking" and "non-blocking" becomes important
+ \item Different queues can run in parallel for many devices
+ \item Within a single queue accelerator back-ends can be mixed (used in interleaves)
+\end{itemize}
+\lstset{basicstyle=\ttfamily\tiny}
+\begin{lstlisting}
+using QueueProperty = alpaka::NonBlocking;
+// Create queue
+using QueueAcc = alpaka::Queue<Acc, QueueProperty>;
+QueueAcc computeQueue{devAcc};
+
+// Copy host -> device, use the queue
+alpaka::memcpy(computeQueue, uCurrBufAcc, uBufHost);
+alpaka::wait(computeQueue);  // not needed if there is single queue, tasks in single queue ordered
+// Create kernel instance
+StencilKernel<sharedMemSize> stencilKernel;
+    // Execute kernel using queue
+    alpaka::exec<Acc>(computeQueue, workDiv_manual, stencilKernel...)
+\end{lstlisting}
+    \end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Execute the Kernel and copy data back to host}
+\begin{itemize}
+
+\item Create queue
+\lstset{basicstyle=\ttfamily\scriptsize}
+\begin{lstlisting}
+// Create queue,
+// queue is needed for kernel execution and copies to/from accelerator
+    alpaka::Queue<Acc, alpaka::NonBlocking> queue{devAcc};
+\end{lstlisting}
+
+\item Execute the kernel using queue, workdiv and kernel arguments:
+\lstset{basicstyle=\ttfamily\scriptsize}
+\begin{lstlisting}
+    alpaka::exec<Acc>(queue, workDiv, initBufferKernel, uBufAcc.data(), pitchCurrAcc, dx, dy);
+\end{lstlisting}
+\item Copy the filled buffer back to the host
+\begin{lstlisting}
+     // Copy device -> host
+     // Since buffers know their corresponding devices (host or acc) memcopy does not need any device variable
+    alpaka::memcpy(queue, uBufHost, uBufAcc);
+    alpaka::wait(queue);
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+%------------------------------------------------
+% mention dont provide code or detailed info
+
+\begin{frame}[fragile]
+\frametitle{Determine WorkDiv}
+Let alpaka calculate work division for you:
+\lstset{basicstyle=\ttfamily\scriptsize} 
+\begin{lstlisting}
+    // All kernel inputs are needed because work-division depends on the kernel
+    // Create kernel instance
+    InitializeBufferKernel initBufferKernel;
+    // Elements per thread needed to determine work-div
+    constexpr alpaka::Vec<Dim, Idx> elemPerThread{1, 1};
+    // Bundle the extent and elements per thread
+    alpaka::KernelCfg<Acc> const kernelCfg = {extent, elemPerThread};
+    // Kernel input row-pitch and data-type-size
+    auto const pitchCurrAcc{alpaka::getPitchesInBytes(uBufAcc)};
+    // Determine the work-div
+    auto workDiv = alpaka::getValidWorkDiv(kernelCfg, devAcc, initBufferKernel, uBufAcc.data(), pitchCurrAcc, dx, dy);
+\end{lstlisting}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Call Kernels with determined Workdivs}
+
+\end{frame}
+
+\section{Optimization of Heat Eqn. Solution}
+
+\begin{frame}
+\frametitle{Optimization and usability}
+\begin{center}
+      \Huge \textbf{alpaka Usability and Optimization Features}
+  \end{center}
+\begin{enumerate}
+ \item Use alpaka \textbf{mdspan} to set,get, pass buffers easily
+ \item Use \textbf{Domain Decomposition}: Divide the domain in \textbf{chunks}
+ \item Use \textbf{2 asynch queues} for performance increase
+ \item Use \textbf{shared memory} for performance increase
+ %\item Use \textbf{alpaka::UniformElements} for easier indexing
+\end{enumerate}
+    \end{frame}
+
+\begin{frame}[fragile]
+\small
+\frametitle{alpaka::experimental::mdspan}
+\textbf{Mdspan a multi-dimensional and non-owning view}
+\begin{itemize}
+\item Part of C++23 standard. Can be used with C++17.
+\item Consists Data Pointer, Data Pitch and Data item size
+\item Has member functions to get/set data and to get extents
+ \end{itemize}
+ \textbf{Mdspan Installation}
+ \begin{itemize}
+\item Set $alpaka\_USE\_MDSPAN$ cmake variable to $FETCH$ while installing alpaka
+\item Alternatively, set $alpaka\_USE\_MDSPAN$ cmake variable to $FETCH$ while configuring example if it is not already set while installation
+\begin{lstlisting}
+// in build directory
+cmake -Dalpaka_USE_MDSPAN=FETCH ..
+ \end{lstlisting}
+\end{itemize}
+\textbf{Create an mdspan view of a buffer, then pass to the kernel}
+\lstset{basicstyle=\ttfamily\scriptsize}
+\begin{lstlisting}
+ // Host code: Allocate device memory
+ auto bufDevA = alpaka::allocBuf<DataType, Idx>(devAcc, extentA);
+ // Create mdspan views for device buffers using alpaka::experimental::getMdSpan
+ auto mdDevA = alpaka::experimental::getMdSpan(bufDevA);
+ // Execute the kernel
+ alpaka::exec<Acc>(queue, workDiv, kernel, mdDevA, mdDevB, mdDevC);
+ \end{lstlisting}
+ \end{frame}
+%------------------------------------------------
+\begin{frame} [fragile]
+\frametitle{Kernel using mdspan instead of data buffer pointer and pitch}
+\lstset{basicstyle=\ttfamily\tiny}
+
+\textbf{Example usage to access/set multi-dim data at host or in kernel}
+ \lstset{basicstyle=\ttfamily\scriptsize}
+ \begin{lstlisting}
+ struct MatrixAddKernel
+ {   template<typename TAcc, typename TMdSpan>
+     ALPAKA_FN_ACC void operator()(TAcc const& acc, TMdSpan A, TMdSpan B, TMdSpan C) const
+     {
+         auto const i = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0];
+         auto const j = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[1];
+         if(i < C.extent(0) && j < C.extent(1))
+         {
+                  C(i, j) = A(i, j) + B(i, j);
+         }
+     } };
+ \end{lstlisting}
+\begin{lstlisting}
+
+struct StencilKernel
+{
+    template<typename TAcc, typename TDim, typename TIdx, typename TMdSpan>
+    ALPAKA_FN_ACC auto operator()(
+        TAcc const& acc,
+        TMdSpan uCurrBuf,
+        TMdSpan uNextBuf,
+        alpaka::Vec<TDim, TIdx> const chunkSize,
+        double const dx,
+        double const dy,
+        double const dt) const -> void
+    { ....
+    } };
+
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}
+\frametitle{Hands-On Session}
+\begin{center}
+      \Huge \textbf{Hands-on Session: Use mdspan for the kernel using shared memory}
+  \end{center}
+\end{frame}
+%------------------------------------------------
+% Will go down because this is optimization: opt is shared memory, 2 queues
+% 
+\begin{frame}
+\frametitle{Chunk Definition}
+\textbf{Chunk:} Subdomains needed for latency management of block level parallelisation
+\vspace{-0.5\baselineskip}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.85\linewidth]{Screenshot from 2024-09-02 14-11-22.png}
+    \label{fig:enter-label}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\frametitle{Calculation by a block of grids of stencil kernel}
+\begin{itemize}
+%    \item \textbf{Halo Region For Shared:} A layer of block cells surrounding the main computational domain.
+
+    \item Chunking is a domain decomposition method
+    \item A block of threads update a chunk of heat data
+    \item A grid of threads updates the whole domain
+\end{itemize}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.75\linewidth]{Screenshot from 2024-09-04 13-55-10.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\frametitle{Chunks in Parallel Grid Computations}
+\begin{itemize}
+%    \item \textbf{Halo Region For Shared:} A layer of block cells surrounding the main computational domain.
+    \item \textbf{Halo Region around chunk:} A layer of grid cells surrounding the subdomains. In order to use the heat value beside the current chunk
+    \item \textbf{Halo Size:} Typically 1 for a 5-point stencil.
+    \item Chunks might include more than one blocks depending on the blocksize
+\end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\linewidth]{Screenshot from 2024-08-30 19-03-50.png}
+   % \caption{Chunks deviding the domaing and the defined halo regions}
+    \label{fig:enter-label}
+\end{figure}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Determine WorkDiv for Chunked Solution}
+
+\textbf{Set work division fields directly:}
+\lstset{basicstyle=\ttfamily\scriptsize}
+\begin{lstlisting}
+// Define a workdiv for the shared memory based heat eqn solution
+constexpr alpaka::Vec<Dim, Idx> elemPerThread{1, 1};
+// Get max threads that can be run in a block for this kernel
+auto const kernelFunctionAttributes = alpaka::getFunctionAttributes<Acc>(
+    devAcc,
+    stencilKernel,
+    uCurrBufAcc.data(), uNextBufAcc.data(),
+    chunkSize,
+    pitchCurrAcc,pitchNextAcc,
+    dx,dy, dt);
+auto const maxThreadsPerBlock = kernelFunctionAttributes.maxThreadsPerBlock;
+auto const threadsPerBlock
+    = maxThreadsPerBlock < chunkSize.prod() ? alpaka::Vec<Dim, Idx>{maxThreadsPerBlock, 1} : chunkSize;
+alpaka::WorkDivMembers<Dim, Idx> workDiv_manual{numChunks, threadsPerBlock, elemPerThread};
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}
+\frametitle{Hands-On Session}
+\begin{center}
+      \Huge \textbf{Hands-on Session: Optimized Heat Eqn. solution by Domain Decomposition}
+  \end{center}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Running 2 parallel queues: Additional queue to dump temprary results}
+\begin{itemize}
+ \item Create an additional alpaka queue at accelrator to run parallely
+ \item The temporary heat result will be copied to host from accelerator
+ \item The copied heat data will be written to form a series of images
+ \item In order to run 2 queues paralelly there they should be a NonBlocking queue
+\end{itemize}
+
+\end{frame}
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Hands-On Session}
+\begin{center}
+      \Huge \textbf{Running 2 parallel queues}
+  \end{center}
+\end{frame}
+
+
+%% Cizim yap gercek sizelar olabilir
+\begin{frame}[fragile]
+\frametitle{Efficient Stencil Computation with Shared Memory}
+\textbf{Shared Memory at GPUs}
+    \begin{itemize}
+        \item A fast, limited-size memory accessible by all threads within a block.
+        \item Used to store data locally in Compute Unit(or SM), reducing the need to access slower global memory.
+        \item Shared Memory allocation can be static or dynamic
+        \begin{itemize}
+            \item Static (compile time determined extent)
+            \item Dynamic (runtime determined extent)
+        \end{itemize}
+         \item Threads in a block must synchronize to ensure all data is loaded into shared memory before computation begins.
+   \end{itemize}
+  \textbf{Benefits:}
+    \begin{itemize}
+        \item Reduces memory latency by storing the working set of data (halo + core) in shared memory.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Steps of Stencil Kernel using shared memory}
+\begin{itemize}
+    \item \textbf{Allocate shared memory inside kernel}
+   \lstset{basicstyle=\ttfamily\scriptsize}
+     \begin{lstlisting}
+     // Allocate shared memory inside kernel, this will be done only once per block although it is in the kernel
+     // Size is determined in compile time and is passed to kernel as a type
+      auto& sdata = alpaka::declareSharedVar<double[T_SharedMemSize1D], __COUNTER__>(acc);
+        \end{lstlisting}
+ \item \textbf{Calculate thread index}
+  \item \textbf{Fill the shared memory by block of threads}
+ \item \textbf{Wait for shared memory to be filled by all block threads}
+ \begin{lstlisting}
+       alpaka::syncBlockThreads(acc);
+   \end{lstlisting}
+ \item \textbf{Calculate new heat value using the data from the shared memory}
+ \item \textbf{Set the new heat value}
+ \end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Hands-On Session}
+\begin{center}
+      \Huge \textbf{Hands-on Session: Optimized Heat Eqn. solution by using shared memory}
+  \end{center}
+\end{frame}
+
+
+
+%------------------------------------------------
+% mention dont provide code or detailed info
+\begin{frame}
+\frametitle{Using multiple queues}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Hands-On Session}
+\begin{center}
+      \Huge \textbf{Hands-on Session: Use multiple queues}
+  \end{center}
+\end{frame}
+
+%------------------------------------------------ 
+%------------------------------------------------
+\section{Recap}
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Conclusion: Parallel Techniques For Solving Heat Equation}
+\begin{itemize}
+    \item \textbf{Kernel Definition}
+    \begin{itemize}
+        \item ..........
+        \item ........
+    \end{itemize}
+    \item \textbf{Kernel Execution}
+    \begin{itemize}
+        \item ..........
+        \item ........
+    \end{itemize}
+    \item \textbf{Allocating and Setting Memory at Host and Accelerator }
+    \begin{itemize}
+        \item ..........
+        \item ........
+    \end{itemize}
+    \item \textbf{Optimizations and Usability}
+    \begin{itemize}
+        \item Using Mdspan
+        \item Domanin Decomposition
+        \item Multiple Async Queues
+        \item Use GPU's Shared Memory
+    \end{itemize}
+    \item \textbf{User Friendliness }
+    \begin{itemize}
+        \item alpaka::experiemental::mdspan
+        \item alpaka::UniformElements
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+\Huge{\centerline{Questions?}}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\end{document}
