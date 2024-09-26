@@ -88,7 +88,7 @@ auto main() -> int
     // If you would like to execute it for a single accelerator only you can use
     // the following code.
     //  \code{.cpp}
-    //  auto tag = TagCpuSerial;
+    //  auto tag = alpaka::TagCpuSerial{};
     //  return example(tag);
     //  \endcode
     //
