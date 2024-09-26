@@ -447,7 +447,7 @@ u_{i,j}^{n+1} = u_{i,j}^n + \alpha \Delta t \left( \frac{u_{i+1,j}^n - 2u_{i,j}^
 \vspace{-0.73\baselineskip}
 \begin{figure}
     \centering
-    \includegraphics[width=0.92\linewidth,height=0.90\textheight]{Screenshot from 2024-09-25 12-59-58}
+    \includegraphics[width=0.92\linewidth,height=0.90\textheight]{Screenshot from 2024-09-26 15-13-53.png}
 \end{figure}
 \end{frame}
 
@@ -529,11 +529,11 @@ struct StencilKernel
   \end{center}
 \begin{enumerate}
  \item Selecting the accelerator and host devices
- \item Allocating and setting host and accelerator device memory.
+ \item Allocating and setting host and accelerator device memory
  \item Alpaka Vector, Buffer and View?
  \item Passing data to the accelarator
  \item WorkDiv
-  \item Define Queue
+ \item Define Queue
 \end{enumerate}
     \end{frame}
 
@@ -572,16 +572,14 @@ using DevHost = alpaka::DevCpu;
 
 \begin{frame} [fragile]
 \frametitle{What is Accelerator}
-
-
-Accelerator hides hardware specifics behind alpaka’s abstract API
+\textbf{Accelerator} hides hardware specifics behind alpaka’s abstract API
 \lstset{basicstyle=\ttfamily\scriptsize}
 \begin{itemize}
-\item On Host: Accelerator is a type. A Meta-parameter for choosing correct physical device and dependent types
+\item \textbf{On Host:} Accelerator is a type. A Meta-parameter for choosing correct physical device and dependent types
 \begin{lstlisting}
 using Acc = acc::AccGpuHipRt<Dim, Idx>;
  \end{lstlisting}
-\item Inside Kernel: Accelerator is a variable. Contains thread state, provides access to alpaka’s device-side API
+\item \textbf{Inside Kernel:} Accelerator is a variable. Contains thread state, provides access to alpaka’s device-side API
 \begin{itemize}
 \item The Accelerator provides the means to access to the indices
  \begin{lstlisting}
@@ -610,7 +608,7 @@ alpaka::syncBlockThreads(acc);
 \begin{frame} [fragile]
 \frametitle{What is alpaka Buffer, Vector and View}
 \begin{itemize}
- \item alpaka::Buf is multi-dimensional dynamic (runtime sized) container.
+ \item \textbf{alpaka::Buf} is multi-dimensional dynamic (runtime sized) container.
  \begin{itemize}
  \item Contains memory adress, extent, datatype and the device that memory belongs to!
  \item Since buffer already knows the it's device and extent; device to device copy is easy in alpaka
@@ -626,11 +624,11 @@ alpaka::syncBlockThreads(acc);
  // cuda way: cudaMemcpy(b_d, b_host, sizeof(float)*N, cudaMemcpyHostToDevice);
  \end{lstlisting}
  \end{itemize}
- \item alpaka::Vec is a static 1D array.
+ \item \textbf{alpaka::Vec} is a static 1D array.
  \begin{lstlisting}
  alpaka::Vec<SizeOfArrayAsType,DataT> myVec;
  \end{lstlisting}
- \item alpaka::View is a non-owning view to an already allocated memory, so that it can be used in alpaka::memcpy
+ \item \textbf{alpaka::View} is a non-owning view to an already allocated memory, so that it can be used in alpaka::memcpy
 \end{itemize}
     \end{frame}
 
@@ -638,7 +636,7 @@ alpaka::syncBlockThreads(acc);
 \begin{frame} [fragile]
 \frametitle{What is alpaka::Queue}
 \begin{itemize}
- \item alpaka::Queue is “a queue of tasks”.
+ \item \textbf{alpaka::Queue} is “a queue of tasks”.
  \item Used for sycnhronization of tasks like memcpy or kernel-execution
  \item Queue is always FIFO, everything is sequential (in-order) inside the alpaka::queue
  \item If there is a second queue, queue feature "blocking" and "non-blocking" becomes important
@@ -685,7 +683,7 @@ bool done = alpaka::empty(myQueue);
 
 \begin{itemize}
 \item Device-side related operations  (kernels, memory operations) can be wrapped in tasks.
-\item Tasks are executed by enqueue() function.
+\item Tasks are executed by \textbf{enqueue()} function.
 \item Tasks on the same queue are executed in order (FIFO principle)
 \begin{lstlisting}
 alpaka::enqueue(queueA, task1);
@@ -714,7 +712,7 @@ alpaka::wait(queueB, myEvent);
 \frametitle{Execute the Kernel and copy data back to host}
 \begin{itemize}
 
-\item Create queue
+\item First create the queue
 \lstset{basicstyle=\ttfamily\scriptsize}
 \begin{lstlisting}
 // Create queue,
@@ -722,7 +720,7 @@ alpaka::wait(queueB, myEvent);
     alpaka::Queue<Acc, alpaka::NonBlocking> queue{devAcc};
 \end{lstlisting}
 
-\item Execute the kernel using queue, workdiv and kernel arguments:
+\item Execute the kernel using the queue, the workdiv and kernel arguments:
 \lstset{basicstyle=\ttfamily\scriptsize}
 \begin{lstlisting}
     alpaka::exec<Acc>(queue, workDiv, initBufferKernel, uBufAcc.data(), pitchCurrAcc, dx, dy);
@@ -765,16 +763,21 @@ Let alpaka calculate work division for you:
 // Set Dim and Index type
 using Dim1D = alpaka::DimInt<1u>; // 1 as a type
 using Idx = uint32_t;
-// M blocks each has 4 threads
-alpaka::WorkDivMembers<Dim1D, Idx> workdiv{M, 4, 1};
+// M blocks each has 4 threads, each level is 1D
+alpaka::WorkDivMembers<Dim1D, Idx> workdiv1D{M, 4, 1};
 // Set Dim2D and use same index type
 using Dim2D = alpaka::DimInt<2u>; // 2 as a type
 alpaka::Vec<Dim2D, Idx> gridBlockExtent{M,N}; // 2D grid
 alpaka::Vec<Dim2D, Idx> blockThreadExtent{32,32}; // 2D block
 alpaka::Vec<Dim2D, Idx> elementExtentPerThread{1,1};
-// MxN blocks each has 32x32 threads
-alpaka::WorkDivMembers<Dim1D, Idx> workdiv{gridBlockExtent,blockThreadExtent, elementExtentPerThread};
+// MxN blocks each has 32x32 threads, each level is 2D
+alpaka::WorkDivMembers<Dim2D, Idx> workdiv2D{gridBlockExtent,blockThreadExtent, elementExtentPerThread};
 \end{lstlisting}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.75\linewidth]{workdivManual.png}
+\end{figure}
+
 \end{frame}
 
 \section{Optimization of Heat Eqn. Solution}
@@ -947,15 +950,58 @@ alpaka::WorkDivMembers<Dim, Idx> workDiv_manual{numChunks, threadsPerBlock, elem
 
 \begin{frame}
 \frametitle{Running 2 parallel queues: Additional queue to dump temporary results}
+\begin{columns}
+  \begin{column}{0.63\textwidth}
 \begin{itemize}
  \item Create an additional alpaka::queue instance at accelerator to run parallely
- \item The temporary heat result will be copied to host from accelerator at the end of each iteration
+ \item The temporary heat result $u^{n}$ will be copied to host from accelerator at the end of each iteration
  \item Copying can start while the stencil and boundary kernels are running
  \item In order to run 2 queues paralelly they should be a NonBlocking queues
  \item The copied heat data will be used to create an animation of images
 \end{itemize}
+  \end{column}
 
+  \begin{column}{0.37\textwidth}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.99\linewidth]{Screenshot from 2024-09-26 15-53-41.png}
+   % \caption{Chunks deviding the domaing and the defined halo regions}
+   % \label{fig:enter-label}
+\end{figure}
+  \end{column}
+  \end{columns}
 \end{frame}
+
+\begin{frame}
+\frametitle{Current Loop}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\linewidth]{Screenshot from 2024-09-26 14-33-46.png}
+   % \caption{Chunks deviding the domaing and the defined halo regions}
+   % \label{fig:enter-label}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\frametitle{Copy $u^{n}$ back at each iteration sequentially}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\linewidth]{Screenshot from 2024-09-26 15-05-08.png}
+   % \caption{Chunks deviding the domaing and the defined halo regions}
+    \label{fig:enter-label}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\frametitle{Copy $u^{n}$ back at each iteration in parallel}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\linewidth]{Screenshot from 2024-09-26 15-05-25.png}
+   % \caption{Chunks deviding the domaing and the defined halo regions}
+    \label{fig:enter-label}
+\end{figure}
+\end{frame}
+
 %------------------------------------------------
 
 \begin{frame}
@@ -978,12 +1024,32 @@ alpaka::WorkDivMembers<Dim, Idx> workDiv_manual{numChunks, threadsPerBlock, elem
             \item Static (compile time determined extent)
             \item Dynamic (runtime determined extent)
         \end{itemize}
+         \item Filling shared memory is done by the same kernel calculating the stencil
          \item Threads in a block must synchronize to ensure all data is loaded into shared memory before computation begins.
    \end{itemize}
   \textbf{Benefits:}
     \begin{itemize}
         \item Reduces memory latency by storing the working set of data (halo + core) in shared memory.
     \end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Shared memory data: chunk with halo}
+\begin{itemize}
+%    \item \textbf{Halo Region For Shared:} A layer of block cells surrounding the main computational domain.
+    \item \textbf{Halo Region around chunk:} A layer of grid cells surrounding the subdomains. In order to use the heat value beside the current chunk
+    \item \textbf{Halo Size:} Typically 1 for a 5-point stencil.
+    \item Chunks might include more than one blocks depending on the blocksize
+    \item Kernel will install the data to shared memory then use the data from shared memory
+\end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\linewidth]{Screenshot from 2024-08-30 19-03-50.png}
+   % \caption{Chunks deviding the domaing and the defined halo regions}
+    \label{fig:enter-label}
+\end{figure}
 \end{frame}
 
 \begin{frame}[fragile]
