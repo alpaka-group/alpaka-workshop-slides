@@ -45,6 +45,7 @@ struct StencilKernel
         // **************************************************************
 
         // Get indexes
+        auto const gridThreadIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
 
         // Each kernel executes one element
         double const rX = dt / (dx * dx);

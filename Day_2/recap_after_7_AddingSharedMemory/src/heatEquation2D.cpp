@@ -142,7 +142,7 @@ auto example(TAccTag const&) -> int
     auto const threadsPerBlock
         = maxThreadsPerBlock < chunkSize.prod() ? alpaka::Vec<Dim, Idx>{maxThreadsPerBlock, 1} : chunkSize;
 
-    alpaka::WorkDivMembers<Dim, Idx> workDiv{numChunks, threadsPerBlock, elemPerThread};
+    alpaka::WorkDivMembers<Dim, Idx> workDivCore{numChunks, threadsPerBlock, elemPerThread};
 
     // Simulate
     for(uint32_t step = 1; step <= numTimeSteps; ++step)
@@ -150,7 +150,7 @@ auto example(TAccTag const&) -> int
         // Compute next values
         alpaka::exec<Acc>(
             computeQueue,
-            workDiv,
+            workDivCore,
             stencilKernel,
             alpaka::experimental::getMdSpan(uCurrBufAcc),
             alpaka::experimental::getMdSpan(uNextBufAcc),

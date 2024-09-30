@@ -68,7 +68,7 @@ cd ~/src
 # Expected output: `/users/<YOUR_USERNAME>/src`
 pwd
 
-# Copy the vectorAdd example from the alpaka source to it own folder in src
+# Copy the vectorAdd example from the alpaka source to it's own folder in src
 cp -r alpaka/example/vectorAdd/ .
 
 cd vectorAdd

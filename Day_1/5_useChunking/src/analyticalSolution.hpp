@@ -8,7 +8,7 @@
 
 #include <cmath>
 
-//! Exact solution to the test problem
+//! Exact solution to the test problem at postion (x,y) at time t
 //! u_t(x, y, t) = u_xx(x, t) + u_yy(y, t), x in [0, 1], y in [0, 1], t in [0, T]
 //!
 //! \param x value of x

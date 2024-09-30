@@ -110,7 +110,7 @@ auto example(TAccTag const&) -> int
 
     alpaka::KernelCfg<Acc> const computeCfg = {numNodes, elemPerThread};
 
-    auto workDiv = alpaka::getValidWorkDiv(
+    auto workDivCore = alpaka::getValidWorkDiv(
         computeCfg,
         devAcc,
         stencilKernel,
@@ -127,7 +127,7 @@ auto example(TAccTag const&) -> int
         // Compute next values
         alpaka::exec<Acc>(
             queue,
-            workDiv,
+            workDivCore,
             stencilKernel,
             alpaka::experimental::getMdSpan(uCurrBufAcc),
             alpaka::experimental::getMdSpan(uNextBufAcc),

@@ -67,12 +67,13 @@ auto example(TAccTag const&) -> int
 
     auto const pitchCurrAcc{alpaka::getPitchesInBytes(uBufAcc)};
 
-    auto workDiv = alpaka::getValidWorkDiv(kernelCfg, devAcc, initBufferKernel, uBufAcc.data(), pitchCurrAcc, dx, dy);
+    auto workDivExtent
+        = alpaka::getValidWorkDiv(kernelCfg, devAcc, initBufferKernel, uBufAcc.data(), pitchCurrAcc, dx, dy);
 
     // Create queue
     alpaka::Queue<Acc, alpaka::NonBlocking> queue{devAcc};
 
-    alpaka::exec<Acc>(queue, workDiv, initBufferKernel, uBufAcc.data(), pitchCurrAcc, dx, dy);
+    alpaka::exec<Acc>(queue, workDivExtent, initBufferKernel, uBufAcc.data(), pitchCurrAcc, dx, dy);
 
     // Copy device -> host
     alpaka::memcpy(queue, uBufHost, uBufAcc);
