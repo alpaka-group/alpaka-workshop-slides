@@ -346,6 +346,54 @@ u_{i,j}^{n+1} = u_{i,j}^n + \alpha \Delta t \left( \frac{u_{i+1,j}^n - 2u_{i,j}^
 \end{figure}
 \end{frame}
 
+
+\begin{frame}
+\vspace{-0.1\baselineskip} % This moves the text up by approximately two lines
+
+\frametitle{The Heat Equation- Cont.}
+\scriptsize
+\begin{itemize}
+\item \textbf{The difference equation:}
+\[
+u_{i,j}^{n+1} = u_{i,j}^n + \alpha \Delta t \left( \frac{u_{i+1,j}^n - 2u_{i,j}^n + u_{i-1,j}^n}{\Delta x^2} + \frac{u_{i,j+1}^n - 2u_{i,j}^n + u_{i,j-1}^n}{\Delta y^2} \right)
+\]
+\item \textbf{Substitute:}
+\vspace{0.3\baselineskip}
+ \( \alpha = 1 \), \( r_X = \frac{\Delta t}{\Delta x^2} \), \( r_Y = \frac{\Delta t}{\Delta y^2} \)
+
+Then \( u_{i,j}^{n+1} \) is:
+
+\[
+u_{i,j}^{n+1} = u_{i,j}^n + r_X \left( u_{i+1,j}^n - 2u_{i,j}^n + u_{i-1,j}^n \right) + r_Y \left( u_{i,j+1}^n - 2u_{i,j}^n + u_{i,j-1}^n \right)
+\]
+
+By regrouping the terms related to \( u_{i,j}^n \), the equation can be rewritten as:
+\fcolorbox{white}{verylightblue}{
+\parbox{0.85\textwidth}{
+\[
+u_{i,j}^{n+1} = u_{i,j}^n \left( 1 - 2r_X - 2r_Y \right) + r_X \left( u_{i+1,j}^n + u_{i-1,j}^n \right) + r_Y \left( u_{i,j+1}^n + u_{i,j-1}^n \right)
+\] }}
+\end{itemize}
+\begin{columns}
+\begin{column}{0.40\textwidth}
+\[
+S= \begin{pmatrix}
+0   & r_{Y}   & 0 \\
+r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
+0   & r_{Y}   & 0
+\end{pmatrix}
+\]
+\end{column}
+
+\begin{column}{0.60\textwidth}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.95\linewidth]{Screenshot from 2024-09-30 14-37-35.png}
+\end{figure}
+\end{column}
+\end{columns}
+\end{frame}
+
 \section{Main Simulation Loop of Heat Eqn.}
 \begin{frame}
 \frametitle{Main Simulation Loop: Leveraging Parallelism}
@@ -438,7 +486,17 @@ u_{i,j}^{n+1} = u_{i,j}^n + \alpha \Delta t \left( \frac{u_{i+1,j}^n - 2u_{i,j}^
     \centering
     \includegraphics[width=0.86\linewidth]{Screenshot from 2024-09-19 23-09-33.png}
 \end{figure}
+
+\begin{itemize}
+    \item Stencil kernel will update only core nodes not the border
+    \item The workdiv for stencil kernel can be calculated by setting gridthread extent to nodes domain
+    \item The workdiv for the borders kernel would need extended extents, because halo is going to updated as well
+    \item Some threads other than the ones updating the border will do nothing when running Boundary kernel
+\end{itemize}
+
+
 \end{frame}
+
 
 
 
@@ -449,6 +507,16 @@ u_{i,j}^{n+1} = u_{i,j}^n + \alpha \Delta t \left( \frac{u_{i+1,j}^n - 2u_{i,j}^
     \centering
     \includegraphics[width=0.92\linewidth,height=0.90\textheight]{Screenshot from 2024-09-26 15-13-53.png}
 \end{figure}
+
+\begin{itemize}
+    \item What kind of basic parallelisation?
+    \begin{itemize}
+        \item StencilKernel needs a Work-division to work on domain of all nodes (without halo)
+        \item Boundary kernel needs a Workdivision which covers nodes + halo region
+        \item Boundary kernel will only use threads corresponding to halo region
+    \end{itemize}
+\end{itemize}
+
 \end{frame}
 
 
@@ -916,6 +984,19 @@ struct StencilKernel
 \end{figure}
 \end{frame}
 
+
+
+
+\begin{frame}
+\frametitle{Chunks in Parallel Grid Computations}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\linewidth]{Screenshot from 2024-09-30 17-03-52.png}
+   % \caption{Chunks deviding the domaing and the defined halo regions}
+    \label{fig:enter-label}
+\end{figure}
+\end{frame}
+
 \begin{frame}[fragile]
 \frametitle{Determine WorkDiv for Chunked Solution}
 
@@ -1072,6 +1153,20 @@ alpaka::WorkDivMembers<Dim, Idx> workDiv_manual{numChunks, threadsPerBlock, elem
  \item \textbf{Set the new heat value}
  \end{itemize}
 \end{frame}
+
+
+\begin{frame}
+\frametitle{Updating chunks using shared memory}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\linewidth]{Screenshot from 2024-09-30 16-48-23.png}
+   % \caption{Chunks deviding the domaing and the defined halo regions}
+    \label{fig:enter-label}
+\end{figure}
+\end{frame}
+
+
+
 
 \begin{frame}
 \frametitle{Hands-On Session}
