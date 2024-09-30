@@ -101,7 +101,7 @@ HZDR \\ % Your institution for the title page
      \item Select the accelerator
      \item Create host-device, acc-device and the queue
      \item Allocate host and device memory
-     \item Decide how to paralelise: set work-division
+     \item Decide how to parallelize: set work-division
      \item Decide where will the parallel and non-parallel parts of the code run
      \item Create the kernel instance and execute kernel
      \item Copy the result from Acc (e.g GPU) back to the host buffer.
@@ -498,8 +498,6 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
 \end{frame}
 
 
-
-
 \begin{frame}
 \frametitle{Complete Heat Equation solution}
 \vspace{-0.73\baselineskip}
@@ -507,30 +505,31 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
     \centering
     \includegraphics[width=0.92\linewidth,height=0.90\textheight]{Screenshot from 2024-09-26 15-13-53.png}
 \end{figure}
+\end{frame}
 
-\begin{itemize}
-    \item What kind of basic parallelisation?
+
+\begin{frame}[fragile]
+\frametitle{The Stencil Kernel}
+\scriptsize
+ \textbf{\textit{What kind of parallelization needed} to calculate  $u_{i,j}^{n+1}$ using $u_{i,j}^{n}$ }
+
+
     \begin{itemize}
         \item StencilKernel needs a Work-division to work on domain of all nodes (without halo)
         \item Boundary kernel needs a Workdivision which covers nodes + halo region
         \item Boundary kernel will only use threads corresponding to halo region
     \end{itemize}
-\end{itemize}
-
-\end{frame}
 
 
-\begin{frame}[fragile]
-\frametitle{The Stencil Kernel Steps}
-\small
- \textbf{\textit{StencilKernel} Calculates Updated Heat  $u_{i,j}^{n+1}$ using $u_{i,j}^{n}$ }
-    \lstset{basicstyle=\ttfamily\scriptsize}
+\textbf{Coding StencilKernel }
+
 
     \begin{itemize}
-    \item \textbf{Thread Index:} Find thread index in the kernel to be used as center of 3x3 stencil.
+    \item \textbf{Input:} Check the size of the input buffer, it should include halo region as well
+    \item \textbf{Thread Index:} Find thread index in the kernel. This index will be used as the center of 3x3 stencil.
     \item \textbf{Memory Adress in Buffer:} Calculate the corresponding memory adress in buffer using thread index. Take into account pitch and data-size
     \item \textbf{Calculate new heat value:} Calculate $u_{i,j}^{n+1}$ using \textbf{Frobenious Inner Product} of 3x3 matrices
-    \item \textbf{Set Value at the Adress:} Set the data at the memory position to the calculated initial condition.
+    \item \textbf{Set Value at the Adress:} Set the data at the memory adress.
     \end{itemize}
     \begin{lstlisting}
 struct StencilKernel
@@ -1095,7 +1094,7 @@ alpaka::WorkDivMembers<Dim, Idx> workDiv_manual{numChunks, threadsPerBlock, elem
 
 %% Cizim yap gercek sizelar olabilir
 \begin{frame}[fragile]
-\frametitle{Efficient Stencil Computation with Shared Memory}
+\frametitle{Efficient Stencil Application with Shared Memory}
 \textbf{Shared Memory at GPUs}
     \begin{itemize}
         \item A fast, limited-size memory accessible by all threads within a block.
@@ -1155,6 +1154,8 @@ alpaka::WorkDivMembers<Dim, Idx> workDiv_manual{numChunks, threadsPerBlock, elem
 \end{frame}
 
 
+
+
 \begin{frame}
 \frametitle{Updating chunks using shared memory}
 \begin{figure}
@@ -1165,7 +1166,15 @@ alpaka::WorkDivMembers<Dim, Idx> workDiv_manual{numChunks, threadsPerBlock, elem
 \end{figure}
 \end{frame}
 
-
+\begin{frame}
+\frametitle{Kernel Operations of a Block to Find $u^{n+1}$ for block data}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\linewidth]{Screenshot from 2024-10-01 01-24-20.png}
+   % \caption{Chunks deviding the domaing and the defined halo regions}
+    \label{fig:enter-label}
+\end{figure}
+\end{frame}
 
 
 \begin{frame}
