@@ -63,12 +63,12 @@ auto example(TAccTag const&) -> int
     // Define a workdiv for the given problem
     constexpr alpaka::Vec<Dim, Idx> elemPerThread{1, 1};
 
-    alpaka::KernelCfg<Acc> const kernelCfg = {extent, elemPerThread};
+    alpaka::KernelCfg<Acc> const cfgExtent = {extent, elemPerThread};
 
     auto const pitchCurrAcc{alpaka::getPitchesInBytes(uBufAcc)};
 
     auto workDivExtent
-        = alpaka::getValidWorkDiv(kernelCfg, devAcc, initBufferKernel, uBufAcc.data(), pitchCurrAcc, dx, dy);
+        = alpaka::getValidWorkDiv(cfgExtent, devAcc, initBufferKernel, uBufAcc.data(), pitchCurrAcc, dx, dy);
 
     // Create queue
     alpaka::Queue<Acc, alpaka::NonBlocking> queue{devAcc};

@@ -37,6 +37,8 @@ struct StencilKernel
 
         // **************************************************************
         // * Change to handle one chunk per block                       *
+        // * Go over all elements in a chunk, fill only elements that   *
+        // * the thread is responsible for                              *
         // **************************************************************
 
         // Get indexes
@@ -47,10 +49,11 @@ struct StencilKernel
         double const rY = dt / (dy * dy);
 
         // offset for halo, as we only want to go over core cells
-        auto idx2D = gridThreadIdx + haloSize;
+        auto globalIdx = gridThreadIdx + haloSize;
 
-        uNextBuf(idx2D[0], idx2D[1]) = uCurrBuf(idx2D[0], idx2D[1]) * (1.0 - 2.0 * rX - 2.0 * rY)
-                                       + uCurrBuf(idx2D[0], idx2D[1] + 1) * rX + uCurrBuf(idx2D[0], idx2D[1] - 1) * rX
-                                       + uCurrBuf(idx2D[0] + 1, idx2D[1]) * rY + uCurrBuf(idx2D[0] - 1, idx2D[1]) * rY;
+        uNextBuf(globalIdx[0], globalIdx[1])
+            = uCurrBuf(globalIdx[0], globalIdx[1]) * (1.0 - 2.0 * rX - 2.0 * rY)
+              + uCurrBuf(globalIdx[0], globalIdx[1] + 1) * rX + uCurrBuf(globalIdx[0], globalIdx[1] - 1) * rX
+              + uCurrBuf(globalIdx[0] + 1, globalIdx[1]) * rY + uCurrBuf(globalIdx[0] - 1, globalIdx[1]) * rY;
     }
 };

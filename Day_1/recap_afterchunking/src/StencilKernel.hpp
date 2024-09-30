@@ -43,22 +43,21 @@ struct StencilKernel
         double const rY = dt / (dy * dy);
 
         auto const blockThreadExtent = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc);
-        auto const numThreadsPerBlock = blockThreadExtent.prod();
 
-        auto const threadIdx1D = alpaka::mapIdx<1>(blockThreadIdx, blockThreadExtent)[0u];
-
-        // go over only core cells
-        for(auto i = threadIdx1D; i < chunkSize.prod(); i += numThreadsPerBlock)
+        // go over only core cells and update nextBuf
+        for(auto i = blockThreadIdx[0]; i < chunkSize[0]; i += blockThreadExtent[0])
         {
-            auto idx2D = alpaka::mapIdx<2>(alpaka::Vec(i), chunkSize);
-            // offset for halo, as we only want to go over core cells
-            idx2D = idx2D + haloSize;
-            auto const bufIdx = idx2D + blockStartThreadIdx;
+            for(auto j = blockThreadIdx[1]; i < chunkSize[1]; i += blockThreadExtent[1])
+            {
+                // offset for halo, as we only want to go over core cells
+                auto localIdx = alpaka::Vec(i, j) + haloSize;
+                auto const globalIdx = localIdx + blockStartThreadIdx;
 
-            uNextBuf(bufIdx[0], bufIdx[1])
-                = uCurrBuf(bufIdx[0], bufIdx[1]) * (1.0 - 2.0 * rX - 2.0 * rY)
-                  + uCurrBuf(bufIdx[0], bufIdx[1] + 1) * rX + uCurrBuf(bufIdx[0], bufIdx[1] - 1) * rX
-                  + uCurrBuf(bufIdx[0] + 1, bufIdx[1]) * rY + uCurrBuf(bufIdx[0] - 1, bufIdx[1]) * rY;
+                uNextBuf(globalIdx[0], globalIdx[1])
+                    = uCurrBuf(globalIdx[0], globalIdx[1]) * (1.0 - 2.0 * rX - 2.0 * rY)
+                      + uCurrBuf(globalIdx[0], globalIdx[1] + 1) * rX + uCurrBuf(globalIdx[0], globalIdx[1] - 1) * rX
+                      + uCurrBuf(globalIdx[0] + 1, globalIdx[1]) * rY + uCurrBuf(globalIdx[0] - 1, globalIdx[1]) * rY;
+            }
         }
     }
 };

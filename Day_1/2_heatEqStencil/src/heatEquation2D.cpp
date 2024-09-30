@@ -87,13 +87,13 @@ auto example(TAccTag const&) -> int
     // Define a workdiv for the given problem
     constexpr alpaka::Vec<Dim, Idx> elemPerThread{1, 1};
 
-    alpaka::KernelCfg<Acc> const kernelCfg = {extent, elemPerThread};
+    alpaka::KernelCfg<Acc> const cfgExtent = {extent, elemPerThread};
 
     auto const pitchCurrAcc{alpaka::getPitchesInBytes(uCurrBufAcc)};
     auto const pitchNextAcc{alpaka::getPitchesInBytes(uNextBufAcc)};
 
     auto workDivExtent
-        = alpaka::getValidWorkDiv(kernelCfg, devAcc, initBufferKernel, uCurrBufAcc.data(), pitchCurrAcc, dx, dy);
+        = alpaka::getValidWorkDiv(cfgExtent, devAcc, initBufferKernel, uCurrBufAcc.data(), pitchCurrAcc, dx, dy);
 
     // Create queue
     alpaka::Queue<Acc, alpaka::NonBlocking> queue{devAcc};
@@ -102,10 +102,10 @@ auto example(TAccTag const&) -> int
 
     StencilKernel stencilKernel;
 
-    alpaka::KernelCfg<Acc> const computeCfg = {numNodes, elemPerThread};
+    alpaka::KernelCfg<Acc> const cfgCore = {numNodes, elemPerThread};
 
     auto workDivCore = alpaka::getValidWorkDiv(
-        computeCfg,
+        cfgCore,
         devAcc,
         stencilKernel,
         uCurrBufAcc.data(),

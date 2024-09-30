@@ -86,10 +86,10 @@ auto example(TAccTag const&) -> int
     // Define a workdiv for the given problem
     constexpr alpaka::Vec<Dim, Idx> elemPerThread{1, 1};
 
-    alpaka::KernelCfg<Acc> const kernelCfg = {extent, elemPerThread};
+    alpaka::KernelCfg<Acc> const cfgExtent = {extent, elemPerThread};
 
     auto workDivExtent = alpaka::getValidWorkDiv(
-        kernelCfg,
+        cfgExtent,
         devAcc,
         initBufferKernel,
         alpaka::experimental::getMdSpan(uCurrBufAcc),
@@ -106,12 +106,15 @@ auto example(TAccTag const&) -> int
     // **************************************************************
     // * Change to use chunking the domain to distribute            *
     // * work for blocks                                            *
+    // * 1 - Define an appropriate chunk size for your accelerator  *
+    // * 2 - Split the domain into chunks                           *
+    // * 3 - Create work divisions using the number of chunks       *
     // **************************************************************
 
-    alpaka::KernelCfg<Acc> const computeCfg = {numNodes, elemPerThread};
+    alpaka::KernelCfg<Acc> const cfgCore = {numNodes, elemPerThread};
 
     auto workDivCore = alpaka::getValidWorkDiv(
-        computeCfg,
+        cfgCore,
         devAcc,
         stencilKernel,
         alpaka::experimental::getMdSpan(uCurrBufAcc),

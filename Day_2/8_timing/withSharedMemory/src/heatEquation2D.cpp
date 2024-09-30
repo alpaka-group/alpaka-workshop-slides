@@ -93,10 +93,10 @@ auto example(TAccTag const&) -> int
     // Define a workdiv for the given problem
     constexpr alpaka::Vec<Dim, Idx> elemPerThread{1, 1};
 
-    alpaka::KernelCfg<Acc> const kernelCfg = {extent, elemPerThread};
+    alpaka::KernelCfg<Acc> const cfgExtent = {extent, elemPerThread};
 
     auto workDivExtent = alpaka::getValidWorkDiv(
-        kernelCfg,
+        cfgExtent,
         devAcc,
         initBufferKernel,
         alpaka::experimental::getMdSpan(uCurrBufAcc),

@@ -38,13 +38,13 @@ struct BoundaryKernel
 
         // Get indexes
         auto const gridBlockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc);
-        auto const idx2D = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
+        auto const globalIdx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc);
 
-        if(idx2D[0] == 0 || idx2D[0] == gridThreadExtent[0] - 1 || idx2D[1] == 0
-           || idx2D[1] == gridThreadExtent[1] - 1)
+        if(globalIdx[0] == 0 || globalIdx[0] == gridThreadExtent[0] - 1 || globalIdx[1] == 0
+           || globalIdx[1] == gridThreadExtent[1] - 1)
         {
-            auto elem = getElementPtr(uBuf, idx2D, pitch);
-            *elem = analyticalSolution(acc, idx2D[1] * dx, idx2D[0] * dy, step * dt);
+            auto elem = getElementPtr(uBuf, globalIdx, pitch);
+            *elem = analyticalSolution(acc, globalIdx[1] * dx, globalIdx[0] * dy, step * dt);
         }
     }
 };
