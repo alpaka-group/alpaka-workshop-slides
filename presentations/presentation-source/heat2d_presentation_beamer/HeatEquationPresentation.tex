@@ -967,7 +967,7 @@ struct StencilKernel
 \end{frame}
 
 \begin{frame}
-\frametitle{Chunks in Parallel Grid Computations}
+\frametitle{Chunks in Parallel Grid Computations - I}
 \begin{itemize}
 %    \item \textbf{Halo Region For Shared:} A layer of block cells surrounding the main computational domain.
     \item \textbf{Halo Region around chunk:} A layer of grid cells surrounding the subdomains. In order to use the heat value beside the current chunk
@@ -987,10 +987,10 @@ struct StencilKernel
 
 
 \begin{frame}
-\frametitle{Chunks in Parallel Grid Computations}
+\frametitle{Chunks in Parallel Grid Computations - II}
 \begin{figure}
     \centering
-    \includegraphics[width=0.9\linewidth]{Screenshot from 2024-09-30 17-03-52.png}
+    \includegraphics[width=0.9\linewidth]{Screenshot from 2024-10-01 12-51-51.png}
    % \caption{Chunks deviding the domaing and the defined halo regions}
     \label{fig:enter-label}
 \end{figure}
@@ -1132,6 +1132,26 @@ alpaka::WorkDivMembers<Dim, Idx> workDiv_manual{numChunks, threadsPerBlock, elem
 \end{figure}
 \end{frame}
 
+\begin{frame}
+\frametitle{Updating chunks using shared memory}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\linewidth]{Screenshot from 2024-10-01 13-19-49.png}
+   % \caption{Chunks deviding the domaing and the defined halo regions}
+    \label{fig:enter-label}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\frametitle{Kernel Operations of a Block to Find $u^{n+1}$ for block data}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\linewidth]{Screenshot from 2024-10-01 12-57-11.png}
+   % \caption{Chunks deviding the domaing and the defined halo regions}
+    \label{fig:enter-label}
+\end{figure}
+\end{frame}
+
 \begin{frame}[fragile]
 \frametitle{Steps of Stencil Kernel using shared memory}
 \begin{itemize}
@@ -1156,25 +1176,7 @@ alpaka::WorkDivMembers<Dim, Idx> workDiv_manual{numChunks, threadsPerBlock, elem
 
 
 
-\begin{frame}
-\frametitle{Updating chunks using shared memory}
-\begin{figure}
-    \centering
-    \includegraphics[width=0.9\linewidth]{Screenshot from 2024-09-30 16-48-23.png}
-   % \caption{Chunks deviding the domaing and the defined halo regions}
-    \label{fig:enter-label}
-\end{figure}
-\end{frame}
 
-\begin{frame}
-\frametitle{Kernel Operations of a Block to Find $u^{n+1}$ for block data}
-\begin{figure}
-    \centering
-    \includegraphics[width=0.9\linewidth]{Screenshot from 2024-10-01 01-24-20.png}
-   % \caption{Chunks deviding the domaing and the defined halo regions}
-    \label{fig:enter-label}
-\end{figure}
-\end{frame}
 
 
 \begin{frame}
