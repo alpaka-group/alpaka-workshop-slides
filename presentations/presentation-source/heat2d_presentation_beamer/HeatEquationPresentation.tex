@@ -168,17 +168,29 @@ Let's assume that 105 item with 3-byte each will be allocated to pass to the ker
 \begin{figure}
 \hspace{-1.2\baselineskip}
    \centering
-   \includegraphics[width=0.73\linewidth]{Screenshot from 2024-09-17 17-37-26.png}
+   \includegraphics[width=0.75\linewidth]{Screenshot from 2024-10-01 17-31-32.png}
    \label{fig:enter-label}
 \end{figure}
 \hspace{0.1\baselineskip}
 \begin{figure}
 \hspace{-1.2\baselineskip}
    \centering
-   \includegraphics[width=0.75\linewidth]{Screenshot from 2024-09-17 17-36-44.png}
+   \includegraphics[width=0.75\linewidth]{Screenshot from 2024-10-01 17-30-50.png}
    \label{fig:enter-label}
 \end{figure}
 \end{frame}
+
+
+
+\begin{frame}[fragile]
+\frametitle{How to access data given the pointer and the pitch?}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.70\linewidth]{Screenshot from 2024-10-01 17-42-41.png}
+\end{figure}
+
+\end{frame}
+
 
 \begin{comment} %%%%%%%%%%%%%%%%%%%%%%
  \begin{frame}[fragile]
@@ -271,7 +283,7 @@ Hence, if a pointer of a 2D buffer is passed to the kernel as a pointer; 2 addit
     \begin{itemize}
     \item \textbf{Thread Index:} Find thread index in the kernel to be used as index to set 2D buffer.
     \item \textbf{Initial Condition at the point:} Find analytically the heat value at the point which has coordinates equal to the 2D thread index.
-    \item \textbf{Memory Adress in Buffer:} Calculate the corresponding memory adress in buffer using thread index. Take into account pitch and data-size
+    \item \textbf{Memory Adress in Buffer:} Calculate the corresponding memory adress in buffer using thread index. Take into account row-pitch and data-size
     \item \textbf{Set Value at the Adress:} Set the data at the memory position to the calculated initial condition.
     \end{itemize}
      \lstset{basicstyle=\ttfamily\tiny}
@@ -452,17 +464,17 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
 \vspace{-0.1\baselineskip}
     \begin{itemize}
         \item Each kernel execution by alpaka calculates $u_{i,j}^{n+1}$ using $u_{i,j}^{n}$
-        \item Each heat point is separately calculated by a thread using \textbf{Frobenious Inner Product}
-        \item The Frobenius inner product between matrix \( S \) and matrix \( U_{i,j} \) is:
+        \item Each heat point is separately calculated by a thread using \textbf{Frobenious Inner Product} (FIP)
+        \item The Frobenius Inner Product between matrix \( S \) and matrix \( U_{i,j} \) is:
 \[
- u_{i,j}^{n+1} = \langle S, U^{n}_{i,j} \rangle_F = \sum_{m=1}^{M} \sum_{n=1}^{K} s_{m,k} u_{m,k}
+ u_{i,j}^{n+1} = \langle S, U^{n}_{i,j} \rangle_F = \sum_{m=1}^{M} \sum_{k=1}^{K} s_{m,k} u_{m,k}
 \]
-        \item $S$ and $U^{n}_{0,0}$ is used  by a thread to calculate $u_{0,0}^{n+1}$
+        \item $S$ and $U^{n}_{0,0}$ is used  by a thread to calculate $u_{0,0}^{n+1}$ using FIP
     \end{itemize}
     \begin{figure}
         \centering
             \includegraphics[width=0.75\linewidth, height=0.4\textheight]{Screenshot from 2024-09-22 00-16-53.png}
-                \caption{First thread calculates $u_{0,0}^{n+1}$ using \textbf{Frobenious Inner Product} of 3x3 matrices}
+             %   \caption{First thread calculates $u_{0,0}^{n+1}$ using \textbf{Frobenious Inner Product} of 3x3 matrices}
         \label{fig:enter-label}
     \end{figure}
 \end{frame}
@@ -491,7 +503,7 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
     \item Stencil kernel will update only core nodes not the border
     \item The workdiv for stencil kernel can be calculated by setting gridthread extent to nodes domain
     \item The workdiv for the borders kernel would need extended extents, because halo is going to updated as well
-    \item Some threads other than the ones updating the border will do nothing when running Boundary kernel
+    %\item Some threads other than the ones updating the border will do nothing when running Boundary kernel
 \end{itemize}
 
 
@@ -531,6 +543,7 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
     \item \textbf{Calculate new heat value:} Calculate $u_{i,j}^{n+1}$ using \textbf{Frobenious Inner Product} of 3x3 matrices
     \item \textbf{Set Value at the Adress:} Set the data at the memory adress.
     \end{itemize}
+    \lstset{basicstyle=\ttfamily\tiny}
     \begin{lstlisting}
 struct StencilKernel
 {
@@ -946,7 +959,7 @@ struct StencilKernel
 \vspace{-0.5\baselineskip}
 \begin{figure}
     \centering
-    \includegraphics[width=0.85\linewidth]{Screenshot from 2024-09-02 14-11-22.png}
+    \includegraphics[height=0.78\textheight]{Screenshot from 2024-09-02 14-11-22.png}
     \label{fig:enter-label}
 \end{figure}
 \end{frame}
@@ -990,7 +1003,7 @@ struct StencilKernel
 \frametitle{Chunks in Parallel Grid Computations - II}
 \begin{figure}
     \centering
-    \includegraphics[width=0.9\linewidth]{Screenshot from 2024-10-01 12-51-51.png}
+    \includegraphics[height=0.9\textheight]{Screenshot from 2024-10-01 12-51-51.png}
    % \caption{Chunks deviding the domaing and the defined halo regions}
     \label{fig:enter-label}
 \end{figure}
