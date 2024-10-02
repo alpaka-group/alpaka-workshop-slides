@@ -1,6 +1,20 @@
 ```bash
 
-# Connect to the remote server using SSH
+# General overview of variables and directories to be used/created
+#
+# - Environment variables 
+# $USER   :your LUMI user-id
+# $PROJID :LUMI project name and folder name we will be using (actually it is "project_465001310") 
+# 
+# - Code Directories to be created 
+# /users/$USER/src : the directory to be created for Alpaka source and training codes
+#
+# - Alpaka Installation Directories to be created for alpaka install
+# /projects/$PROJID/$USERID/build : The build directory for alpaka installation   
+# /projects/$PROJID/$USERID/local : The install directory for alpaka
+
+# Connect to the remote server using SSH, 
+# Use your own ssh-key filename and your LUMI account name
 ssh -i ~/.ssh/thinkpad narwalta@lumi.csc.fi
 
 # Source the environment profile for the LUMI supercomputer
@@ -11,11 +25,8 @@ source /project/project_465001310/workshop_software/env.sh
 # Create and navigate to a source directory to store your project
 mkdir src && cd src
 
-# Clone the alpaka repository from the `develop` branch using SSH
-git clone -b develop --single-branch git@github.com:alpaka-group/alpaka.git
-
-# If SSH cloning fails, try using the HTTPS option:
-# git clone -b develop --single-branch https://github.com/alpaka-group/alpaka.git
+# Clone the alpaka repository from the `develop` branch using HTTPS
+git clone -b develop --single-branch https://github.com/alpaka-group/alpaka.git
 
 # Navigate to the project directory using the environment variable `$PROJID`
 cd /project/$PROJID
@@ -42,6 +53,8 @@ cd build
 # Create a subdirectory for alpaka build files
 mkdir alpaka && cd alpaka
 
+# Allocate resources by getDevice function
+# To see what getDevice script function is doing use "declare -f getDevice"
 getDevice
 
 # The `local` directory will hold installed files
@@ -78,9 +91,16 @@ mkdir build && cd build
 # Open the CMake configuration interface to customize the build process
 cmake ..
 
-# Inside the CMake configration interface activate the accelerators of interest 
-# For example, enable HIP support by turning on `ALPAKA_HIP_ENABLE`.
+# Inside the CMake configration interface called "ccmake", activate the accelerators of interest 
+# For example, enable HIP support by turning on `alpaka_ACC_GPU_HIP_ENABLE`.
+# If mdspan is used in the project set alpaka_USE_MDSPAN to FETCH
 ccmake .
+
+# As an alternative to setting cmake param at "ccmake" cmake command can be used as well: 
+#    cmake -DCMAKE_BUILD_TYPE=Release \
+#          -Dalpaka_ACC_CPU_B_SEQ_T_SEQ_ENABLE=ON \
+#          -Dalpaka_ACC_GPU_HIP_ENABLE=ON
+#          -Dalpaka_USE_MDSPAN=FETCH ..
 
 # After configuration, exit the CMake interface and proceed to build the project.
 # Use the `-j` flag to parallelize the build for faster compilation.
