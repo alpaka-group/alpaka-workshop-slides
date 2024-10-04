@@ -3,7 +3,11 @@
 - **Presentations for October 2024:**
   - [Introduction to Parallel Programming using alpaka](https://github.com/alpaka-group/alpaka-workshop-slides/blob/oct2024_workshop/presentations/UsingAlpakaWorkshopOctober2024.pdf)
   - [alpaka Features by Heat Equation Solution](https://github.com/alpaka-group/alpaka-workshop-slides/blob/oct2024_workshop/presentations/AlpakaFeaturesByHeatEquationOctober2024.pdf)
-- **Git Repository:** [https://github.com/alpaka-group/alpaka](https://github.com/alpaka-group/alpaka)
+- **Repository for hands-on exercises and presentations**
+  - [All documents of Workshop Alpaka Section, October 2024](https://github.com/alpaka-group/alpaka-workshop-slides/tree/oct2024_workshop)
+- **alpaka Git Repository:**
+  - [https://github.com/alpaka-group/alpaka](https://github.com/alpaka-group/alpaka)
+
 - **alpaka Documentation:**
   - Main Page: [https://alpaka.readthedocs.io/en/latest/index.html](https://alpaka.readthedocs.io/en/latest/index.html)
   - [Installation Guide](https://alpaka.readthedocs.io/en/latest/)
