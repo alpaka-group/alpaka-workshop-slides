@@ -57,6 +57,11 @@ auto example(TAccTag const&) -> int
     // Halo size must be multiplied by two to get the extents, as their are halo cells below and to the right as well
     constexpr alpaka::Vec<Dim, Idx> extent = numNodes + haloSize + haloSize;
 
+    // Print the vectors, each has Dim number of elements
+    std::cout << "The core [numNodes]:" << numNodes << std::endl;
+    std::cout << "The halo [haloSize]:" << haloSize << std::endl;
+    std::cout << "The full extent[nodes + 2*halosize]:" << extent << std::endl;
+
     constexpr uint32_t numTimeSteps = 4000;
     constexpr double tMax = 0.1;
 
@@ -94,6 +99,9 @@ auto example(TAccTag const&) -> int
 
     auto workDivExtent
         = alpaka::getValidWorkDiv(cfgExtent, devAcc, initBufferKernel, uCurrBufAcc.data(), pitchCurrAcc, dx, dy);
+
+    // Print the workdivision, it has 3 vector each having Dim number of elements
+    std::cout << "Workdivision:\n\t" << workDivExtent << std::endl;
 
     // Create queue
     alpaka::Queue<Acc, alpaka::NonBlocking> queue{devAcc};

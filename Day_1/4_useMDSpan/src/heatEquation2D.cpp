@@ -102,6 +102,9 @@ auto example(TAccTag const&) -> int
     auto workDivExtent
         = alpaka::getValidWorkDiv(cfgExtent, devAcc, initBufferKernel, uCurrBufAcc.data(), pitchCurrAcc, dx, dy);
 
+    // Print the workdivision, it has 3 vector each having Dim number of elements
+    std::cout << "Workdivision[workDivExtent]:\n\t" << workDivExtent << std::endl;
+
     // Create queue
     alpaka::Queue<Acc, alpaka::NonBlocking> queue{devAcc};
 
@@ -123,6 +126,9 @@ auto example(TAccTag const&) -> int
         dx,
         dy,
         dt);
+
+    // Print the workdivision, it has 3 vector each having Dim number of elements
+    std::cout << "Workdivision[workDivCore]:\n\t" << workDivCore << std::endl;
 
     // Simulate
     for(uint32_t step = 1; step <= numTimeSteps; ++step)

@@ -42,7 +42,7 @@ struct InitializeBufferKernel
 
         printf(
             "Block index [y,x]: %u %u \t Thread index in block [y,x] : %u %u \t Calculated thread index in grid "
-            "[y, x] :% u % u \t Thread index in grid[y, x] : % u % u \t \n ",
+            "[y, x] :%u %u \t Thread index in grid[y, x] : %u %u \t \n ",
             gridBlockIdx[0],
             gridBlockIdx[1],
             blockThreadIdx[0],

@@ -99,6 +99,9 @@ auto example(TAccTag const&) -> int
     // Create queue
     alpaka::Queue<Acc, alpaka::NonBlocking> queue{devAcc};
 
+    // Print the workdivision, it has 3 vector each having Dim number of elements
+    std::cout << "Workdivision[workDivExtent]:\n\t" << workDivExtent << std::endl;
+
     alpaka::exec<Acc>(queue, workDivExtent, initBufferKernel, alpaka::experimental::getMdSpan(uCurrBufAcc), dx, dy);
 
     StencilKernel stencilKernel;
@@ -112,6 +115,13 @@ auto example(TAccTag const&) -> int
         alpaka::core::divCeil(numNodes[0], chunkSize[0]),
         alpaka::core::divCeil(numNodes[1], chunkSize[1]),
     };
+
+    // Print the vectors, each has Dim number of elements
+    std::cout << "The core [numNodes]:" << numNodes << std::endl;
+    std::cout << "The halo [haloSize]:" << haloSize << std::endl;
+    std::cout << "The full extent[nodes + 2*halosize]:" << extent << std::endl;
+    std::cout << "The chunk extent:" << chunkSize << std::endl;
+    std::cout << "The number of chunks in core:" << numChunks << std::endl;
 
     assert(
         numNodes[0] % chunkSize[0] == 0 && numNodes[1] % chunkSize[1] == 0
@@ -134,6 +144,9 @@ auto example(TAccTag const&) -> int
         = maxThreadsPerBlock < chunkSize.prod() ? alpaka::Vec<Dim, Idx>{maxThreadsPerBlock, 1} : chunkSize;
 
     alpaka::WorkDivMembers<Dim, Idx> workDivCore{numChunks, threadsPerBlock, elemPerThread};
+
+    // Print the workdivision, it has 3 vector each having Dim number of elements
+    std::cout << "Workdivision[workDivCore]:\n\t" << workDivCore << std::endl;
 
     // Simulate
     for(uint32_t step = 1; step <= numTimeSteps; ++step)
