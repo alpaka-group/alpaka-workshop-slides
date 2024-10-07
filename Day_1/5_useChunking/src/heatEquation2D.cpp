@@ -100,6 +100,8 @@ auto example(TAccTag const&) -> int
     alpaka::Queue<Acc, alpaka::NonBlocking> queue{devAcc};
 
     alpaka::exec<Acc>(queue, workDivExtent, initBufferKernel, alpaka::experimental::getMdSpan(uCurrBufAcc), dx, dy);
+    // Print the workdivision, it has 3 vector each having Dim number of elements
+    std::cout << "Workdivision[workDivExtent]:\n\t" << workDivExtent << std::endl;
 
     StencilKernel stencilKernel;
 
@@ -123,6 +125,9 @@ auto example(TAccTag const&) -> int
         dx,
         dy,
         dt);
+
+    // Print the workdivision, it has 3 vector each having Dim number of elements
+    std::cout << "Workdivision[workDivCore]:\n\t" << workDivCore << std::endl;
 
     // Simulate
     for(uint32_t step = 1; step <= numTimeSteps; ++step)
