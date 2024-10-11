@@ -111,14 +111,35 @@ make -j
 
 cd ~/src
 
-# Clone the workshop repository from the `oct2024_workshop` branch using SSH
-git clone -b oct2024_workshop --single-branch git@github.com:alpaka-group/alpaka-workshop-slides.git
+# Clone the workshop repository from the `oct2024_workshop` branch 
+git clone -b oct2024_workshop --single-branch https://github.com/alpaka-group/alpaka-workshop-slides.git
 
-# If SSH cloning fails, try using the HTTPS option:
-# git clone -b oct2024_workshop --single-branch https://github.com/alpaka-group/alpaka-workshop-slides.git
+# File Transfer and Sharing methods if needed
 
-# Mount the remote filesystem using SSHFS to make it accessible locally.
-# The `sshfs` command mounts the remote directory to a local mount point.
+# 1. Using SFTP for File Transfer
+# From GNU/Linux terminal or Windows PowerCell
+sftp your_lumi_username@lumi.csc.fi
+# See which remote directory you are in
+sftp> pwd
+# Copy your local file to a LUMI directory /users/your_lumi_username or any other directory
+sftp> put local_file_name.txt /users/your_lumi_username
+# Do "ls" to see remote directory. Check if your local file is transferred 
+sftp> ls
+# Copy your remote file to local computer
+sftp> get remote_file_name.txt local_directory
+# Create a remote directory if needed
+sftp> mkdir remote_directory
+
+# 2. Mounting, in case a local mounting point for remote file system is preferred
+#
+# Mount the remote filesystem using SSHFS to make it accessible locally (for example at your laptop).
+# The `sshfs` command mounts the remote directory to a local mount point (for example /home/your_local_username/mnt/)
 # This can make file transfers and edits simpler by working directly with remote files.
-sshfs -o follow_symlinks -o IdentityFile=~/.ssh/thinkpad narwalta@lumi.csc.fi:/users/narwalta/ /home/ikbuibui/mnt/ -o auto_cache
-# THIS FOR PC and MAC?
+
+sshfs -o follow_symlinks -o IdentityFile=~/.ssh/your_key_for_lumi your_lumi_username@lumi.csc.fi:/users/your_lumi_username/ /home/your_local_username/mnt/ -o auto_cache
+
+# A working example command for narwalta LUMI user, local user directory is /home/ikbuibui/mnt/ to mount the lumi filesystem
+# sshfs -o follow_symlinks -o IdentityFile=~/.ssh/thinkpad narwalta@lumi.csc.fi:/users/narwalta/ /home/ikbuibui/mnt/ -o auto_cache
+# NOTE for macOS: macOS needs macFUSE and sshfs for mounting remote directories.
+# NOTE for Windows: Windows requires WinFsp and SSHFS-Win to achieve the same functionality.
+
