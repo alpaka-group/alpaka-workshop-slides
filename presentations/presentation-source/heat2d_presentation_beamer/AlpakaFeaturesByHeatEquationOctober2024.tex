@@ -78,22 +78,22 @@
 \setbeamertemplate{background}{%
     \begin{tikzpicture}[remember picture,overlay]
         % Only show the Alpaka logo if it's NOT the title page or the last slide
-        \ifnum\insertframenumber>1 \ifnum\insertframenumber<\inserttotalframenumber
+
             % Top right logo (logoAlpaka) with vertical adjustment
-            \node[anchor=north east] at ([yshift=+0.1cm,xshift=+0.1cm]current page.north east) {\includegraphics[width=2cm]{logoAlpaka.png}};
-        \fi\fi
+            \node[anchor=north east] at ([yshift=+0.1cm,xshift=+0.1cm]current page.north east) {\includegraphics[width=2cm]{logoCasus.png}};
+
 
         % Bottom left logo (logoCasus) appears on all slides
-        \node[anchor=south west] at ([yshift=-0.11cm] current page.south west) {\includegraphics[width=2.1cm]{logoCasus.png}};
+        \node[anchor=south west] at ([yshift=-0.11cm] current page.south west) {\includegraphics[width=2.1cm]{logoAlpaka.png}};
     \end{tikzpicture}
 }
 
-\title{Heat Equation Solution using alpaka} % The short title appears at the bottom of every slide, the full title is only on the title page
+\title{Section II: Heat Equation Solution using alpaka} % The short title appears at the bottom of every slide, the full title is only on the title page
 
-\author{alpaka Team} % Your name
+\author{PLASMA-PEPSC Workshop on Alpaka and OPENPMD} % Your name
 \institute[HZDR] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
 {
-HZDR \\ % Your institution for the title page
+\\ % Your institution for the title page
 \medskip
 \textit{} % Your email address
 }
