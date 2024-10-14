@@ -33,14 +33,12 @@ public:
 
         openPMD::Iteration current_iteration = m_series.writeIterations()[step];
 
-        // TODO:
-        // 1. Navigate to correct object in the openPMD hierarchy.
-        //    Reference: https://openpmd-api.readthedocs.io/en/0.16.0/usage/concepts.html
-        // 2. Set metadata.
+        // TODO: Navigate to correct object in the openPMD hierarchy.
+        // Reference: https://openpmd-api.readthedocs.io/en/0.16.0/usage/concepts.html
 
         auto logical_extents = alpaka::getExtents(accBuffer);
 
-        // TODO: Use resetDataset() for specifying the 2D array's metadata
+        // TODO: Use resetDataset() for specifying the 2D array's datatype and extent.
 
         alpaka::memcpy(dumpQueue, hostBuffer, accBuffer);
         alpaka::wait(dumpQueue);

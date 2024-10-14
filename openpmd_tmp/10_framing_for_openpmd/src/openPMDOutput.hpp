@@ -32,20 +32,20 @@ public:
         using value_t = alpaka::Elem<HostBuffer>;
 
         openPMD::Iteration current_iteration = m_series.writeIterations()[step];
+        openPMD::Mesh image = current_iteration.meshes["heat"];
 
-        // TODO:
-        // 1. Navigate to correct object in the openPMD hierarchy.
-        //    Reference: https://openpmd-api.readthedocs.io/en/0.16.0/usage/concepts.html
-        // 2. Set metadata.
+        // TODO: Inspect the file that was produced by this code.
+        // It has default values for the metadata.
+        // Use adequate API calls to set the metadata.
 
         auto logical_extents = alpaka::getExtents(accBuffer);
 
-        // TODO: Use resetDataset() for specifying the 2D array's metadata
+        image.resetDataset({openPMD::determineDatatype<value_t>(), asOpenPMDExtent(logical_extents)});
 
         alpaka::memcpy(dumpQueue, hostBuffer, accBuffer);
         alpaka::wait(dumpQueue);
 
-        // TODO: Write 2D data to openPMD.
+        image.storeChunkRaw(hostBuffer.data(), {0, 0}, asOpenPMDExtent(logical_extents));
 
         current_iteration.close();
     }
