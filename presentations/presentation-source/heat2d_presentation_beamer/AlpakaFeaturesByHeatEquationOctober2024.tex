@@ -28,6 +28,7 @@
 }
 
 \usepackage{graphicx} % Allows including images
+\usepackage{tikz} % For precise overlay placement
 \usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
 \usepackage{verbatim} % Allows verbatim environments for code
 \usepackage{textcomp} % Allows correct display of text in \texttt{}
@@ -66,6 +67,26 @@
 %----------------------------------------------------------------------------------------
 %	TITLE PAGE
 %----------------------------------------------------------------------------------------
+
+% Redefine the headline to remove the blue line but keep space for logos
+\setbeamertemplate{headline}{
+    % Here, we can leave it empty or customize further, like adding section titles or navigation
+    \vspace{1cm} % Keep some space for the logos to appear properly
+}
+
+% Overlay two logos using TikZ
+\setbeamertemplate{background}{%
+    \begin{tikzpicture}[remember picture,overlay]
+        % Only show the Alpaka logo if it is NOT the title page
+        \ifx\inserttitlepage\relax
+            % Top right logo (logoAlpaka) with vertical adjustment
+            \node[anchor=north east] at ([yshift=-1.5cm,xshift=+0.1cm]current page.north east) {\includegraphics[width=2cm]{logoAlpaka.png}};
+        \fi
+
+        % Bottom left logo (logoCasus) appears on all slides
+        \node[anchor=south west] at (current page.south west) {\includegraphics[width=2.1cm]{logoCasus.png}};
+    \end{tikzpicture}
+}
 
 \title{Heat Equation Solution using alpaka} % The short title appears at the bottom of every slide, the full title is only on the title page
 
