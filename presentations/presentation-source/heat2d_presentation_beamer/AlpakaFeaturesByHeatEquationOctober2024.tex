@@ -80,14 +80,13 @@
         % Only show the Alpaka logo if it's NOT the title page or the last slide
         \ifnum\insertframenumber>1 \ifnum\insertframenumber<\inserttotalframenumber
             % Top right logo (logoAlpaka) with vertical adjustment
-            \node[anchor=north east] at ([yshift=-1.64cm,xshift=+0.1cm]current page.north east) {\includegraphics[width=2cm]{logoAlpaka.png}};
+            \node[anchor=north east] at ([yshift=+0.1cm,xshift=+0.1cm]current page.north east) {\includegraphics[width=2cm]{logoAlpaka.png}};
         \fi\fi
 
         % Bottom left logo (logoCasus) appears on all slides
         \node[anchor=south west] at ([yshift=-0.11cm] current page.south west) {\includegraphics[width=2.1cm]{logoCasus.png}};
     \end{tikzpicture}
 }
-
 
 \title{Heat Equation Solution using alpaka} % The short title appears at the bottom of every slide, the full title is only on the title page
 
@@ -337,7 +336,7 @@ Hence, if a pointer of a 2D buffer is passed to the kernel as a pointer; 2 addit
 \begin{frame}
 \frametitle{Hands-On Session}
 \begin{center}
-      \Huge \textbf{Hands-on Session: Filling an accelerator buffer paralelly}
+      \Huge \textbf{Hands-on Session3: Filling an accelerator buffer paralelly}
   \end{center}
 \end{frame}
 
@@ -618,7 +617,7 @@ struct StencilKernel
 \begin{frame}
 \frametitle{Hands-On Session}
 \begin{center}
-      \Huge \textbf{Hands-on Session:Stencil Kernel}
+      \Huge \textbf{Hands-on Session4: Stencil Kernel}
   \end{center}
 \end{frame}
 
@@ -969,7 +968,7 @@ struct StencilKernel
 \begin{frame}
 \frametitle{Hands-On Session}
 \begin{center}
-      \Huge \textbf{Hands-on Session: Use mdspan for the kernel using shared memory}
+      \Huge \textbf{Hands-on Session5: Use mdspan for the kernel using shared memory}
   \end{center}
 \end{frame}
 %------------------------------------------------
@@ -1057,7 +1056,7 @@ alpaka::WorkDivMembers<Dim, Idx> workDiv_manual{numChunks, threadsPerBlock, elem
 \begin{frame}
 \frametitle{Hands-On Session}
 \begin{center}
-      \Huge \textbf{Hands-on Session: Optimized Heat Eqn. solution by Domain Decomposition}
+      \Huge \textbf{Hands-on Session6: Optimized Heat Eqn. solution by Domain Decomposition}
   \end{center}
 \end{frame}
 
@@ -1122,7 +1121,7 @@ alpaka::WorkDivMembers<Dim, Idx> workDiv_manual{numChunks, threadsPerBlock, elem
 \begin{frame}
 \frametitle{Hands-On Session}
 \begin{center}
-      \Huge \textbf{Running 2 parallel queues}
+      \Huge \textbf{Hands-On Session7: Running 2 parallel queues}
   \end{center}
 \end{frame}
 
@@ -1217,7 +1216,7 @@ alpaka::WorkDivMembers<Dim, Idx> workDiv_manual{numChunks, threadsPerBlock, elem
 \begin{frame}
 \frametitle{Hands-On Session}
 \begin{center}
-      \Huge \textbf{Hands-on Session: Optimized Heat Eqn. solution by using shared memory}
+      \Huge \textbf{Hands-on Session8: Optimized Heat Eqn. solution by using shared memory}
   \end{center}
 \end{frame}
 
