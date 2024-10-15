@@ -1,0 +1,14 @@
+backend = "adios2"
+iteration_encoding = "group_based"
+
+[adios2.engine]
+type = "bp5"
+
+[adios2.engine.parameters]
+MarshalMethod = "bp"
+StatsLevel = 1
+
+[[adios2.dataset.operators]]
+type = "blosc"
+parameters.clevel = 5
+parameters.doshuffle = "BLOSC_BITSHUFFLE"

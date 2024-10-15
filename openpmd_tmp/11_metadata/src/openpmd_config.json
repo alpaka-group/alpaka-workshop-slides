@@ -1,0 +1,24 @@
+{
+  "backend": "adios2",
+  "iteration_encoding": "group_based",
+  "adios2": {
+    "engine": {
+      "type": "bp5",
+      "parameters": {
+        "MarshalMethod": "bp",
+        "StatsLevel": 1
+      }
+    },
+    "dataset": {
+      "operators": [
+        {
+          "type": "blosc",
+          "parameters": {
+            "clevel": 5,
+            "doshuffle": "BLOSC_BITSHUFFLE"
+          }
+        }
+      ]
+    }
+  }
+}
