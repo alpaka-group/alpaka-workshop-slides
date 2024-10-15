@@ -19,6 +19,7 @@ public:
     void init()
     {
         m_series = openPMD::Series("heat.bp5", openPMD::Access::CREATE);
+        // TODO: Set global metadata here
     }
 
     template<typename HostBuffer, typename AccBuffer, typename DumpQueue>
