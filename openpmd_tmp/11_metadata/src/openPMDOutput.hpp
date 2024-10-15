@@ -37,6 +37,10 @@ public:
          *
          * You may also consult the Doxygen documentation for the `Series` constructor at
          * https://openpmd-api.readthedocs.io/en/0.16.0/_static/doxyhtml/index.html.
+         * Use this documentation page for the syntax of JSON/TOML configuration:
+         * https://openpmd-api.readthedocs.io/en/0.16.0/details/backendconfig.html
+         *
+         * Bonus: Try writing an HDF5 file instead of ADIOS2!
          */
         m_series = openPMD::Series("openpmd/heat_%06T.bp5", openPMD::Access::CREATE);
         m_series.setMeshesPath("images");
