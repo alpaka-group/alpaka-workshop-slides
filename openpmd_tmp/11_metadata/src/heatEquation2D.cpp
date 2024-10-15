@@ -174,9 +174,12 @@ auto example(TAccTag const&) -> int
             dy,
             dt);
 
-        if((step + 1) % 10 == 0)
+        if constexpr(!std::is_same_v<TAccTag, alpaka::TagCpuSerial>)
         {
-            openPMDOutput.writeIteration(step, uBufHost, uCurrBufAcc, dumpQueue);
+            if((step + 1) % 10 == 0)
+            {
+                openPMDOutput.writeIteration(step, uBufHost, uCurrBufAcc, dumpQueue);
+            }
         }
 
 #ifdef PNGWRITER_ENABLED

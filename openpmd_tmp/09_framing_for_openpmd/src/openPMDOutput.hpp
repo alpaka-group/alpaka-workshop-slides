@@ -18,7 +18,7 @@ private:
 public:
     void init()
     {
-        m_series = openPMD::Series("heat.bp5", openPMD::Access::CREATE);
+        m_series = openPMD::Series("openpmd/heat.bp5", openPMD::Access::CREATE);
     }
 
     template<typename HostBuffer, typename AccBuffer, typename DumpQueue>
