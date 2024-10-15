@@ -34,6 +34,9 @@ public:
          *    passed inline, so paths need to be distinguished by beginning with a `@`. A good idea is to read the
          *    configuration file from the run directory; for this, specify just the filename and then copy/symlink the
          *    configuration into e.g. your build folder.
+         *
+         * You may also consult the Doxygen documentation for the `Series` constructor at
+         * https://openpmd-api.readthedocs.io/en/0.16.0/_static/doxyhtml/index.html.
          */
         m_series = openPMD::Series("openpmd/heat_%06T.bp5", openPMD::Access::CREATE);
         m_series.setMeshesPath("images");
