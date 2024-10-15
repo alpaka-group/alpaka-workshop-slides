@@ -19,7 +19,6 @@ public:
     void init()
     {
         m_series = openPMD::Series("heat.bp5", openPMD::Access::CREATE);
-        m_series.setMeshesPath("images");
     }
 
     template<typename HostBuffer, typename AccBuffer, typename DumpQueue>
