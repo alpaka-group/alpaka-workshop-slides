@@ -46,7 +46,7 @@ def show_iteration(iteration, figure_settings):
     data = heat[:, :]
     iteration.close()
 
-    # contourf prints the axes in reverse order, counteract this
+    # matplotlib prints the axes in reverse order, counteract this
     data = heat.unit_SI * data.T
 
     # Stick with the color map from the first image by fixing vmin and vmax
@@ -61,15 +61,6 @@ def show_iteration(iteration, figure_settings):
     )
     plt.xlabel(heat.axis_labels[0])
     plt.ylabel(heat.axis_labels[1])
-
-    def get_coordinates(dim):
-        offset = heat.grid_global_offset[dim] * heat.grid_unit_SI
-        spacing = heat.grid_spacing[dim]
-        spacing *= heat.grid_unit_SI
-        ticks = np.fromiter(
-            (offset + spacing * i for i in range(heat.shape[dim])), dtype=type(offset)
-        )
-        return ticks
 
     def get_offset(dim):
         return heat.grid_global_offset[dim] * heat.grid_unit_SI
