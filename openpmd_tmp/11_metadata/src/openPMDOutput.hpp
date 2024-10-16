@@ -19,6 +19,9 @@ public:
     void init()
     {
         /*
+         * First follow the steps in `next_steps.md` for visualizing the data written so far.
+         * Then, follow the steps below.
+         *
          * TODO: The source folder contains two config files openpmd_config.json and openpmd_config.toml. Their content
          * is identical, openPMD accepts both TOML-formatted and JSON-formatted configuration. TOML is more legible as
          * a configuration format (and supports comments), while JSON is more widely known. You may continue with
