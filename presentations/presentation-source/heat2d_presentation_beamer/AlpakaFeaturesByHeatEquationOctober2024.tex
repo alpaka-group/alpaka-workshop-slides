@@ -105,9 +105,62 @@
 \titlepage % Print the title page as the first slide
 \end{frame}
 
+\begin{frame}[t]{Workshop Schedule} % [t] aligns the top of the columns
+
+\begin{columns}[T] % The [T] option aligns the tops of the columns
+\vspace{-1.3cm}
+\hspace*{-0.6cm} % Adjust the -1cm to move more or less to the left
+% First Column
+\begin{column}{0.44\textwidth}
+\textbf{\small Section - I}
+
+\begin{enumerate}
+\color{gray}
+    \item \small Introduction: What is alpaka, where it is used?
+    \item \small \textbf{Hands on 1}: Installing alpaka and running an example (LUMI)
+    \item \small Parallel programming concepts and portable parallelization by alpaka
+    \begin{itemize}
+    \color{gray}
+        \item \scriptsize Grid Structure and WorkDivision
+        \item \scriptsize Data Parallelism
+        \item \scriptsize Indexing
+    \end{itemize}
+    \item \small \textbf{Hands on 2}: HelloIndex kernel which prints indexes
+\end{enumerate}
+\end{column}
+
+% Second Column
+\begin{column}{0.56\textwidth}
+\textbf{\small Section - II}
+\begin{enumerate}
+    \item \small Memory management for 1D and 2D data
+    \item \small Filling buffers in parallel
+    \item \small \textbf{Hands on 3}: Kernel to fill initial conditions of heat equation
+    \item \small Heat Equation
+    \item \small Preparing stencil kernel
+    \item \small \textbf{Hands on 4}: Heat Equation stencil kernel
+    \item \small Programming features and data-structures of alpaka
+    \item \small Usability and Optimization
+    \begin{itemize}
+        \item \scriptsize Using alpaka mdspan for easier indexing
+              \textbf{Hands on 5}
+        \item \scriptsize Domain Decomposition
+              \textbf{Hands on 6} (Day2)
+        \item \scriptsize Using async queues for performance increase
+              \textbf{Hands on 7} (Day2)
+        \item \scriptsize Using shared memory for performance increase
+              \textbf{Hands on 8} (Day2)
+    \end{itemize}
+\end{enumerate}
+\end{column}
+
+\end{columns}
+\end{frame}
+
+
 
 \begin{frame}
-\frametitle{Overview} % Table of contents slide
+\frametitle{Overview of Section-II} % Table of contents slide
 \tableofcontents % Automatically prints the table of contents based on \section{} and \subsection{} commands
 \end{frame}
 
@@ -245,7 +298,7 @@ Let's assume that 105 item with 3-byte each will be allocated to pass to the ker
 \small
 \frametitle{Passing multi dimensional buffer to the kernel}
  \begin{itemize}
- \item \textbf{Pass 3 variables for a buffer: pointer, row-pitch, and datasize}
+ \item \textbf{Pass 3 variables for a buffer: pointer,  "row-pitch", and datasize}
 
 Multi-dimensional memory allocated in memory uses aligned rows.
 Hence, if a pointer of a 2D buffer is passed to the kernel as a pointer; 2 additional values \textbf{pitch} and item \textbf{data-size} should also be passed.
@@ -304,7 +357,7 @@ Hence, if a pointer of a 2D buffer is passed to the kernel as a pointer; 2 addit
     \begin{itemize}
     \item \textbf{Thread Index:} Find thread index in the kernel to be used as index to set 2D buffer.
     \item \textbf{Initial Condition at the point:} Find analytically the heat value at the point which has coordinates equal to the 2D thread index.
-    \item \textbf{Memory Adress in Buffer:} Calculate the corresponding memory adress in buffer using thread index. Take into account row-pitch and data-size
+    \item \textbf{Memory Adress in Buffer:} Calculate the corresponding memory adress in buffer using thread index. Take into account the row-pitch and data-size
     \item \textbf{Set Value at the Adress:} Set the data at the memory position to the calculated initial condition.
     \end{itemize}
      \lstset{basicstyle=\ttfamily\tiny}
@@ -740,8 +793,8 @@ alpaka::syncBlockThreads(acc);
  \item \textbf{alpaka::Queue} is “a queue of tasks”.
  \item Used for sycnhronization of tasks like memcpy or kernel-execution
  \item Queue is always FIFO, everything is sequential (in-order) inside the alpaka::queue
- \item If there is a second queue, queue feature "blocking" and "non-blocking" becomes important
- \item Different queues can run in parallel for many devices
+ \item If the Queue is non-blocking the caller(host) is not blocked
+ \item Different non-blocking queues can run in parallel
  \item Within a single queue accelerator back-ends can be mixed (used in interleaves)
 \end{itemize}
 \lstset{basicstyle=\ttfamily\tiny}
@@ -752,7 +805,7 @@ using QueueAcc = alpaka::Queue<Acc, QueueProperty>;
 QueueAcc computeQueue{devAcc};
 // Copy host -> device, use the queue
 alpaka::memcpy(computeQueue, uCurrBufAcc, uBufHost);
-alpaka::wait(computeQueue);  // Not needed we have single queue
+alpaka::wait(computeQueue);  // Not needed, we have single queue
 // Create kernel instance
 StencilKernel<sharedMemSize> stencilKernel;
 // Execute kernel using queue
@@ -760,17 +813,57 @@ alpaka::exec<Acc>(computeQueue, workDiv_manual, stencilKernel...)
 \end{lstlisting}
 \end{frame}
 
+
 \begin{frame}[fragile]
-\frametitle{Queue Operations}
+\frametitle{Multiple Queues}
 \begin{itemize}
 \item Queues are used for synchronization
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\linewidth]{Screenshot from 2024-10-16 14-52-12.png}
+   % \caption{Chunks deviding the domaing and the defined halo regions}
+    \label{fig:enter-label}
+\end{figure}
+
+\item Copying and running synchronously
 \begin{lstlisting}
-// block caller until all operations have completed
-alpaka::wait(myQueue);
-// block myQueue until myEvent has been reached
-alpaka::wait(myQueue, myEvent);
-// block myQueue until otherQueue has completed
-alpaka::wait(myQueue, otherQueue);
+using QueueProperty = alpaka::NonBlocking;
+using QueueGpu = alpaka::Queue<AccGpu, QueueProperty>;
+StencilKernel<sharedMemSize> stencilKernel;
+auto queueGpu1 = QueueGpu{devGpu};
+auto queueGpu2 = QueueGpu{devGpu};
+alpaka::memcpy(queueGpu1, uCurrBufAcc, uBufHost);
+alpaka::wait(QueueGpu1);
+alpaka::memcpy(queueGpu2, uCurrBufAcc2, uBufHost2);
+// Execute kernel using queue
+alpaka::exec<Acc>(queueGpu1, workDiv_manual, stencilKernel...)
+alpaka::wait(QueueGpu1);
+alpaka::wait(QueueGpu2);
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Queue Operations and Tasks}
+\begin{itemize}
+\item Device-side related operations  (kernels, memory operations) can be wrapped in tasks.
+\begin{lstlisting}
+auto const taskRunKernel = alpaka::createTaskKernel<Acc>(workDiv, kernel, /* kernel args */);
+auto const taskMemcpy = alpaka::createTaskMemcpy<Acc>( uCurrBufAcc, uBufHost);
+\end{lstlisting}
+\item Tasks are executed by \textbf{enqueue()} function.
+\begin{lstlisting}
+alpaka::enqueue(queueA, taskMemCopy);
+// taskRunKernel starts after taskMemCopy has finished, even queueA is non-blocking
+alpaka::enqueue(queueA, taskRunKernel);
+\end{lstlisting}
+\item Wait can be used to make queue finish all tasks enqueued
+\begin{lstlisting}
+// wait until all tasks have completed
+alpaka::wait(queueA);
+// block queueA until otherQueue has completed
+alpaka::wait(queueA, otherQueue);
 \end{lstlisting}
 \item Queues can be checked for completion of all tasks
 \begin{lstlisting}
@@ -780,23 +873,23 @@ bool done = alpaka::empty(myQueue);
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{Tasks and Events}
+\frametitle{Queue Operations and Events}
 
 \begin{itemize}
-\item Device-side related operations  (kernels, memory operations) can be wrapped in tasks.
-\item Tasks are executed by \textbf{enqueue()} function.
-\item Tasks on the same queue are executed in order (FIFO principle)
-\begin{lstlisting}
-alpaka::enqueue(queueA, task1);
-alpaka::enqueue(queueA, task2);
-// task2 starts after task1 has finished, even if queueA is non-blocking
-\end{lstlisting}
-\item Order of tasks in different queues is unspecified
-\begin{lstlisting}
-alpaka::enqueue(queueA, task1);
-alpaka::enqueue(queueB, task2);
-// task2 starts before, after or in parallel to task1 if queueA is non blocking
-\end{lstlisting}
+%\item
+%\item
+%\item Tasks on the same queue are executed in order (FIFO principle)
+%\begin{lstlisting}
+%alpaka::enqueue(queueA, task1);
+%alpaka::enqueue(queueA, task2);
+%// task2 starts after task1 has finished, even if queueA is non-blocking
+%\end{lstlisting}
+%\item Order of tasks in different queues is unspecified
+%\begin{lstlisting}
+%alpaka::enqueue(queueA, task1);
+%alpaka::enqueue(queueB, task2);
+%// task2 starts before, after or in parallel to task1 if queueA is non blocking
+%\end{lstlisting}
 \item For easier synchronization, alpaka Events can be inserted before, after or between Tasks:
 \begin{lstlisting}
 auto myEvent = alpaka::Event<alpaka::Queue>(myDev);
@@ -807,6 +900,15 @@ alpaka::wait(queueB, myEvent);
 \end{itemize}
 \end{frame}
 
+
+\begin{frame}
+\frametitle{Some sychronization scenarios}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.93\linewidth]{Screenshot from 2024-10-16 16-53-06.png}
+    \label{fig:enter-label}
+\end{figure}
+\end{frame}
 
 
 \begin{frame}[fragile]
@@ -1107,10 +1209,10 @@ alpaka::WorkDivMembers<Dim, Idx> workDiv_manual{numChunks, threadsPerBlock, elem
 \end{frame}
 
 \begin{frame}
-\frametitle{Copy $u^{n}$ back at each iteration in parallel}
+\frametitle{Copy $u^{n}$ back at each iteration in parallel by a second Acc Queue}
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\linewidth]{Screenshot from 2024-09-26 15-05-25.png}
+    \includegraphics[width=0.8\linewidth]{Screenshot from 2024-10-16 17-10-42.png}
    % \caption{Chunks deviding the domaing and the defined halo regions}
     \label{fig:enter-label}
 \end{figure}
