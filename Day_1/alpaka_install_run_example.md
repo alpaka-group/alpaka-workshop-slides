@@ -10,8 +10,8 @@
 # /users/$USER/src : the directory to be created for Alpaka source and training codes
 #
 # - Alpaka Installation Directories to be created for alpaka install
-# /projects/$PROJID/$USERID/build : The build directory for alpaka installation   
-# /projects/$PROJID/$USERID/local : The install directory for alpaka
+# /project/$PROJID/$USERID/build : The build directory for alpaka installation   
+# /project/$PROJID/$USERID/local : The install directory for alpaka
 
 # Connect to the remote server using SSH, 
 # Use your own ssh-key filename and your LUMI account name
