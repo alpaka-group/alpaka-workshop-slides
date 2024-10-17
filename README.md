@@ -1,6 +1,6 @@
 # Links
 
-- **Time Table for alpaka and OpenMpd Hackaton on 23-25 October 2024**
+- **Time Table for alpaka and OpenPMD Hackaton on 23-25 October 2024**
   - [TimeTable](https://events.hifis.net/event/1657/timetable/#all)
 
 - **Presentations for alpaka Hackaton on 23-24 October 2024:**
