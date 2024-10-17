@@ -22,82 +22,56 @@
   - [Webinar Slides (pdf)](https://github.com/alpaka-group/alpaka-workshop-slides/blob/d40c44081c53041ce618205167c130c973c9b41e/slides-2024/UsingAlpakaForPlasmaPepscWebinar28May2024.pdf)
   
 
-# alpaka Workshop
 
-The outline of the alpaka workshop
 
-## Why alpaka?
+# The outline of the alpaka workshop
+
+# Section - I
+
+## 1 Introduction: What is alpaka, where it is used?
 - Support for **heterogeneous architectures** (e.g., CPUs, GPUs, FPGAs).
 - Write once, run anywhere—alpaka abstracts hardware specifics for parallel computing.
 
-## How to Install
+## 2 Hands on 1: Installing alpaka and running an example (LUMI)
 - Install alpaka with correct cmake backend options
 - Compile and run an alpaka example from the repository.
 - Verify it runs on the available hardware (CPU, GPU, etc.).
 
-## Hands-On 1: Install alpaka and Run An Example
-- Install alpaka with correct cmake backend options and run an example
+## 3 Parallel programming concepts and portable parallelization by alpaka
+- Grid Structure and WorkDivision
+- Data Parallelism
+- Indexing
 
-## Parallelization Concepts
-- Parallel Decomposition: Breaking the problem into independent parts.
-- Chunking: Grouping tasks for parallel execution.
-- Independent Work: Ensuring no dependencies between tasks.
-- Example: Vector Addition - show decomposition of problem domain, and mapping to GPUs.
+## 4 Hands on 2: HelloIndex kernel which prints indexes
 
-## GPU Concepts
-- Grid: Our thread pool.
-- SMs: Streaming Multiprocessors.
-- Threads and Blocks: Grouping of threads in blocks.
-- Indexing: Indices of blocks and threads.
+# Section - II
 
-## WorkDiv
-- Map the decomposed problem domain to blocks and threads.
-    - Difference on CPU and GPU.
-- Map thread and block indices to data.
+## 1 Memory management for 1D and 2D data
+- Memory Allocation, Padding and Pitch
 
-## Hands-On 2: Indexing in Kernel: HelloIndex
-- Modify an example to experiment with indexing and printf.
+## 2 Filling buffers in parallel
+- Use indexing to match thread to data
 
-## Heat Equation Problem
-- Introduction to solving the heat equation using alpaka.
-- Memory Allocation and Passing to Kernel.
-- Play with memory layout using pitches.
+## 3 Hands on 3: Kernel to fill initial conditions of heat equation
 
-## Hands-On 3: Fill a buffer at the global memory in parallel
+## 4 Heat Equation
+- Double accelerator-buffers method to solve Heat Equation
+## 5 Preparing stencil kernel
+- Difference Equation as a stencil operation
 
-## Main Simulation Loop of Heat Equation
-- Heat Equation Stencil Definition.
+## 6 Hands on 4: Heat Equation stencil kernel
 
-## Hands-On 4: Implement Stencil Kernel to Solve Heat Equation
-- Implement a simple heat equation kernel using stencils.
+## 7 alpaka programming features and data-structures
+- Accelerator, Device, Queue, Task
+- Buffers and Views: Managing memory across devices
+- alpaka mdspan
+- Setting work division manually
 
-## Programming Features and Data Structures of alpaka
-- Accelerator, Device, Queue, Task.
-- Buffers and Views: Managing memory across devices.
-- alpaka mdspan.
-
-## Optimizations
-
-1. Use alpaka mdspan (Hands-On 5).
-2. Domain Decomposition or "Chunking" (Hands-On 6).
-3. Using async queues for performance increase (Hands-On 7).
-4. Using shared memory for performance increase (Hands-On 8).
-
-## Optimization Hands-Ons
-
-### Hands-On 5: Write the Kernel with mdspan
-- Use the mdspan to manage multidimensional arrays.
-- Use the mdspan to pass multi-dim arrays to the kernel.
-
-### Hands-On 6: Domain Decomposition (Chunking)
-- Implement explicit chunking of work and manage explicit indexing.
-- Make custom work division based on chunking.
-
-### Hands-On 7: Two Queues
-- Implement parallel execution using two queues. Explore overlap between computation and data transfer.
-
-### Hands-On 8: Using Shared Memory
-- Add shared memory to improve performance.
+## 8 Usability and optimization
+- Hands on 5: Using alpaka mdspan for easier indexing 
+- Hands on 6: Domain Decomposition, chunking or tiling
+- Hands on 7: Using multiple Queues to increase performance. Explore overlap between computation and data transfer
+- Hands on 8: Using Shared Memory for chunksExplore overlap between computation and data transfer
 
 ## Timing Runs
-- Measure the performance of your kernels and analyze the timing with and without shared memory.
+- Measure the performance of your kernels and analyze the timing with and without shared memory
