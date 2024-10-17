@@ -28,50 +28,50 @@
 
 # Section - I
 
-## 1 Introduction: What is alpaka, where it is used?
+## 1. Introduction: What is alpaka, where it is used?
 - Support for **heterogeneous architectures** (e.g., CPUs, GPUs, FPGAs).
 - Write once, run anywhere—alpaka abstracts hardware specifics for parallel computing.
 
-## 2 Hands on 1: Installing alpaka and running an example (LUMI)
+## 2. Hands-on 1: Installing alpaka and running an example (LUMI)
 - Install alpaka with correct cmake backend options
 - Compile and run an alpaka example from the repository.
 - Verify it runs on the available hardware (CPU, GPU, etc.).
 
-## 3 Parallel programming concepts and portable parallelization by alpaka
+## 3. Parallel programming concepts and portable parallelization by alpaka
 - Grid Structure and WorkDivision
 - Data Parallelism
 - Indexing
 
-## 4 Hands on 2: HelloIndex kernel which prints indexes
+## 4. Hands-on 2: HelloIndex kernel which prints indexes
 
 # Section - II
 
-## 1 Memory management for 1D and 2D data
+## 1. Memory management for 1D and 2D data
 - Memory Allocation, Padding and Pitch
 
-## 2 Filling buffers in parallel
+## 2. Filling buffers in parallel
 - Use indexing to match thread to data
 
-## 3 Hands on 3: Kernel to fill initial conditions of heat equation
+## 3. Hands-on 3: Kernel to fill initial conditions of heat equation
 
-## 4 Heat Equation
+## 4. Heat Equation
 - Double accelerator-buffers method to solve Heat Equation
-## 5 Preparing stencil kernel
+## 5. Preparing stencil kernel
 - Difference Equation as a stencil operation
 
-## 6 Hands on 4: Heat Equation stencil kernel
+## 6. Hands-on 4: Heat Equation stencil kernel
 
-## 7 alpaka programming features and data-structures
+## 7. alpaka programming features and data-structures
 - Accelerator, Device, Queue, Task
 - Buffers and Views: Managing memory across devices
 - alpaka mdspan
 - Setting work division manually
 
-## 8 Usability and optimization
-- Hands on 5: Using alpaka mdspan for easier indexing 
-- Hands on 6: Domain Decomposition, chunking or tiling
-- Hands on 7: Using multiple Queues to increase performance. Explore overlap between computation and data transfer
-- Hands on 8: Using Shared Memory for chunksExplore overlap between computation and data transfer
+## 8. Usability and optimization
+- Hands-on 5: Using alpaka mdspan for easier indexing 
+- Hands-on 6: Domain Decomposition, chunking or tiling
+- Hands-on 7: Using multiple Queues to increase performance. Explore overlap between computation and data transfer
+- Hands-on 8: Using Shared Memory for chunksExplore overlap between computation and data transfer
 
 ## Timing Runs
 - Measure the performance of your kernels and analyze the timing with and without shared memory
