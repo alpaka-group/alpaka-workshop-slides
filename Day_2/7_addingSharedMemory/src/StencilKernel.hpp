@@ -59,7 +59,7 @@ struct StencilKernel
         // go over only core cells and update nextBuf
         for(auto i = blockThreadIdx[0]; i < chunkSize[0]; i += blockThreadExtent[0])
         {
-            for(auto j = blockThreadIdx[1]; i < chunkSize[1]; i += blockThreadExtent[1])
+            for(auto j = blockThreadIdx[1]; j < chunkSize[1]; j += blockThreadExtent[1])
             {
                 // offset for halo, as we only want to go over core cells
                 auto localIdx = alpaka::Vec(i, j) + haloSize;
