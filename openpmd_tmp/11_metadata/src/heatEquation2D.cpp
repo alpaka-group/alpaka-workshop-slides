@@ -151,6 +151,14 @@ auto example(TAccTag const&) -> int
     // Simulate
     for(uint32_t step = 1; step <= numTimeSteps; ++step)
     {
+#ifdef PNGWRITER_ENABLED
+        if((step - 1) % 100 == 0)
+        {
+            alpaka::wait(computeQueue);
+            alpaka::memcpy(dumpQueue, uBufHost, uCurrBufAcc);
+        }
+#endif
+
         // Compute next values
         alpaka::exec<Acc>(
             computeQueue,
@@ -185,8 +193,6 @@ auto example(TAccTag const&) -> int
 #ifdef PNGWRITER_ENABLED
         if((step - 1) % 100 == 0)
         {
-            alpaka::wait(computeQueue);
-            alpaka::memcpy(dumpQueue, uBufHost, uCurrBufAcc);
             alpaka::wait(dumpQueue);
             writeImage(step - 1, uBufHost);
         }

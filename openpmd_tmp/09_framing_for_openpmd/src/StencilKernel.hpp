@@ -54,7 +54,7 @@ struct StencilKernel
         // fill shared memory
         for(auto i = blockThreadIdx[0]; i < smemSize2D[0]; i += blockThreadExtent[0])
         {
-            for(auto j = blockThreadIdx[1]; i < smemSize2D[1]; i += blockThreadExtent[1])
+            for(auto j = blockThreadIdx[1]; j < smemSize2D[1]; j += blockThreadExtent[1])
             {
                 auto localIdx2D = alpaka::Vec(i, j);
                 auto localIdx1D = alpaka::mapIdx<1>(localIdx2D, smemSize2D)[0u];
@@ -68,7 +68,7 @@ struct StencilKernel
         // go over only core cells and update nextBuf
         for(auto i = blockThreadIdx[0]; i < chunkSize[0]; i += blockThreadExtent[0])
         {
-            for(auto j = blockThreadIdx[1]; i < chunkSize[1]; i += blockThreadExtent[1])
+            for(auto j = blockThreadIdx[1]; j < chunkSize[1]; j += blockThreadExtent[1])
             {
                 // offset for halo, as we only want to go over core cells
                 auto localIdx2D = alpaka::Vec(i, j) + haloSize;
