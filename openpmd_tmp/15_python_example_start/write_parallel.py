@@ -5,8 +5,6 @@
 
 import json
 
-from mpi4py import MPI
-
 import numpy as np
 import openpmd_api as io
 
@@ -19,9 +17,6 @@ config["adios2"]["engine"] = {"parameters": {"Threads": "4", "DataTransport": "W
 config["adios2"]["dataset"] = {"operators": [{"type": "bzip2"}]}
 
 if __name__ == "__main__":
-    # TODO: Initialize the Series with the MPI communicator
-    comm = MPI.COMM_WORLD
-
     # create a series and specify some global metadata
     series = io.Series(
         "openPMD/simData_%T.bp5", io.Access_Type.create, json.dumps(config)

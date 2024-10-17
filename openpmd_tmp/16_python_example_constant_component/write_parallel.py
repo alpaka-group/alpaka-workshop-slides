@@ -19,7 +19,9 @@ config["adios2"]["engine"] = {"parameters": {"Threads": "4", "DataTransport": "W
 config["adios2"]["dataset"] = {"operators": [{"type": "bzip2"}]}
 
 if __name__ == "__main__":
-    # TODO: Initialize the Series with the MPI communicator
+    # TODO: Initialize the Series with the MPI communicator.
+    # Note that for execution, you need to set `export MPICH_GPU_SUPPORT_ENABLED=0`,
+    # otherwise mpi4py will try looking for GPUs.
     comm = MPI.COMM_WORLD
 
     # create a series and specify some global metadata
