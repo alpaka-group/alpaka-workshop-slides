@@ -1,9 +1,9 @@
 # Links
 
-- **Time Table for alpaka and OpenPMD Hackaton on 23-25 October 2024**
+- **Time Table for alpaka and OpenPMD Hackathon on 23-25 October 2024**
   - [TimeTable](https://events.hifis.net/event/1657/timetable/#all)
 
-- **Presentations for alpaka Hackaton on 23-24 October 2024:**
+- **Presentations for alpaka Hackathon on 23-24 October 2024:**
   - [Introduction to Parallel Programming using alpaka](https://github.com/alpaka-group/alpaka-workshop-slides/blob/oct2024_workshop/presentations/UsingAlpakaWorkshopOctober2024.pdf)
   - [alpaka Features by Heat Equation Solution](https://github.com/alpaka-group/alpaka-workshop-slides/blob/oct2024_workshop/presentations/AlpakaFeaturesByHeatEquationOctober2024.pdf)
 - **Repository for hands-on exercises and presentations**
