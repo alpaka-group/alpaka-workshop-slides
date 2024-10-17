@@ -1,5 +1,9 @@
 # Reference: https://openpmd-api.readthedocs.io/en/0.16.0/details/backendconfig.html
 backend = "adios2"
+# Note: In practise, use group-based encoding only for HDF5 backend.
+# It can have unexpected performance implications for ADIOS2.
+# For ADIOS2, use either file-based encoding or (in streaming or streaming-like setups)
+# variable-based encoding.
 iteration_encoding = "group_based"
 
 [adios2.engine]

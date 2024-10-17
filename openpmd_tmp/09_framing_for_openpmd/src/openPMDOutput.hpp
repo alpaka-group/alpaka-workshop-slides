@@ -43,6 +43,10 @@ public:
         alpaka::wait(dumpQueue);
 
         // TODO: Write 2D data to openPMD.
+        // Then inspect the dataset:
+        //
+        // 1. with `bpls openpmd/heat_000000.bp5` (native ADIOS2 tooling)
+        // 2. and with `openpmd-ls openpmd/heat_%06T.bp5` (openPMD-api tooling).
 
         current_iteration.close();
     }

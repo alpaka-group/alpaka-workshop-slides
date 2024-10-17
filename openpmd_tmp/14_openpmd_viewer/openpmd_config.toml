@@ -1,10 +1,5 @@
 # Reference: https://openpmd-api.readthedocs.io/en/0.16.0/details/backendconfig.html
 backend = "adios2"
-# Note: In practise, use group-based encoding only for HDF5 backend.
-# It can have unexpected performance implications for ADIOS2.
-# For ADIOS2, use either file-based encoding or (in streaming or streaming-like setups)
-# variable-based encoding.
-iteration_encoding = "group_based"
 
 [adios2.engine]
 type = "bp5"
@@ -12,7 +7,6 @@ type = "bp5"
 # Engine parameters listed at:
 # https://adios2.readthedocs.io/en/v2.10.1/engines/engines.html
 [adios2.engine.parameters]
-MarshalMethod = "bp"
 StatsLevel = 1
 
 # Compression operators unfortunately not well documented in ADIOS2.
@@ -20,5 +14,5 @@ StatsLevel = 1
 # https://github.com/ornladios/ADIOS2/blob/master/source/adios2/operator/OperatorFactory.cpp
 [[adios2.dataset.operators]]
 type = "blosc"
-parameters.clevel = 5
+parameters.clevel = 9
 parameters.doshuffle = "BLOSC_BITSHUFFLE"
