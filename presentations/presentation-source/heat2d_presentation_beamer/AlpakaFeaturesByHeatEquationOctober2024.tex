@@ -670,7 +670,7 @@ struct StencilKernel
 \begin{frame}
 \frametitle{Hands-On Session}
 \begin{center}
-      \Huge \textbf{Hands-on Session4: Stencil Kernel}
+      \Huge \textbf{Hands-on Session4: Stencil Kernel to Calculate $u^{n+1}$}
   \end{center}
 \end{frame}
 
@@ -1070,7 +1070,7 @@ struct StencilKernel
 \begin{frame}
 \frametitle{Hands-On Session}
 \begin{center}
-      \Huge \textbf{Hands-on Session5: Use mdspan for the kernel using shared memory}
+      \Huge \textbf{Hands-on Session5: Use mdspan to pass data to kernel}
   \end{center}
 \end{frame}
 %------------------------------------------------
@@ -1212,7 +1212,7 @@ alpaka::WorkDivMembers<Dim, Idx> workDiv_manual{numChunks, threadsPerBlock, elem
 \frametitle{Copy $u^{n}$ back at each iteration in parallel by a second Acc Queue}
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\linewidth]{Screenshot from 2024-10-16 17-10-42.png}
+    \includegraphics[width=0.8\linewidth]{Screenshot from 2024-10-17 16-11-14.png}
    % \caption{Chunks deviding the domaing and the defined halo regions}
     \label{fig:enter-label}
 \end{figure}
@@ -1223,7 +1223,7 @@ alpaka::WorkDivMembers<Dim, Idx> workDiv_manual{numChunks, threadsPerBlock, elem
 \begin{frame}
 \frametitle{Hands-On Session}
 \begin{center}
-      \Huge \textbf{Hands-On Session7: Running 2 parallel queues}
+      \Huge \textbf{Hands-On Session7: Running 2 parallel queues to dump heat at each step}
   \end{center}
 \end{frame}
 
