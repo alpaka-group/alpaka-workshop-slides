@@ -64,6 +64,19 @@
 
 \lstset{style=mystyle}
 
+% Add footer with section and subsection
+\setbeamertemplate{footline}{%
+  \leavevmode%
+  \hbox{%
+  \begin{beamercolorbox}[wd=.5\paperwidth,ht=2.25ex,dp=1ex,left]{title in head/foot}%
+    \usebeamerfont{title in head/foot}\hspace*{2ex}\insertsection\ :: \insertsubsection
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.5\paperwidth,ht=2.25ex,dp=1ex,right]{date in head/foot}%
+    \usebeamerfont{date in head/foot}\insertframenumber{} / \inserttotalframenumber\hspace*{2ex}
+  \end{beamercolorbox}}%
+  \vskip0pt%
+}
+
 %----------------------------------------------------------------------------------------
 %	TITLE PAGE
 %----------------------------------------------------------------------------------------
@@ -88,7 +101,7 @@
     \end{tikzpicture}
 }
 
-\title{Section II: Heat Equation Solution using alpaka} % The short title appears at the bottom of every slide, the full title is only on the title page
+\title{Alpaka Hackathon Section-II: Heat Equation Solution} % The short title appears at the bottom of every slide, the full title is only on the title page
 
 \author{PLASMA-PEPSC Workshop on Alpaka and OPENPMD} % Your name
 \institute[HZDR] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
@@ -101,10 +114,11 @@
 
 \begin{document}
 
+\section{Section-II Introduction}
 \begin{frame}
 \titlepage % Print the title page as the first slide
 \end{frame}
-
+\subsection{Schedule}
 \begin{frame}[t]{Workshop Schedule} % [t] aligns the top of the columns
 
 \begin{columns}[T] % The [T] option aligns the tops of the columns
@@ -158,13 +172,14 @@
 \end{frame}
 
 
+%\subsection{Overview}
+%\begin{frame}
+%\frametitle{Overview of Section-II} % Table of contents slide
+%\tableofcontents % Automatically prints the table of contents based on \section{} and \subsection{} commands
+%\end{frame}
 
-\begin{frame}
-\frametitle{Overview of Section-II} % Table of contents slide
-\tableofcontents % Automatically prints the table of contents based on \section{} and \subsection{} commands
-\end{frame}
-
-\section{Steps filling a buffer in parallel}
+\section{Filling a buffer in parallel}
+\subsection{Steps}
 \begin{frame}
 \frametitle{Steps of Filling a Buffer in Parallel}
 \begin{columns}
@@ -200,7 +215,7 @@
 
 %------------------------------------------------
 %------------------------------------------------
-\section{Memory Allocation and Passing to Kernel}
+\subsection{Data Allocation and Pass}
 
 
  \begin{frame}[fragile]
@@ -333,7 +348,7 @@ Hence, if a pointer of a 2D buffer is passed to the kernel as a pointer; 2 addit
 
 
 
-\section{Define InitilizeBuffer Kernel and Execute}
+\subsection{Hands on 3: InitilizeBuffer Kernel}
 %----------------------------------------------
 
 \begin{frame}
@@ -396,6 +411,7 @@ Hence, if a pointer of a 2D buffer is passed to the kernel as a pointer; 2 addit
 %------------------------------------------------
 \section{Introduction for Heat Equation} % Sections can be created to organize your presentation into discrete blocks
 %------------------------------------------------
+\subsection{Difference Equation}
 \begin{frame}
 \vspace{-0.1\baselineskip} % This moves the text up by approximately two lines
 
@@ -432,7 +448,7 @@ u_{i,j}^{n+1} = u_{i,j}^n + \alpha \Delta t \left( \frac{u_{i+1,j}^n - 2u_{i,j}^
 \end{figure}
 \end{frame}
 
-
+\subsection{Stencil Matrix}
 \begin{frame}
 \vspace{-0.1\baselineskip} % This moves the text up by approximately two lines
 
@@ -481,33 +497,9 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
 \end{frame}
 
 \section{Main Simulation Loop of Heat Eqn.}
-\begin{frame}
-\frametitle{Main Simulation Loop: Leveraging Parallelism}
-\begin{itemize}
-    \item \textbf{Initialization:}
-    \begin{itemize}
-        \item Define the "host device" and "accelerator device". The "Host" and "Device" in short.
-        \item Set initial conditions and boundary conditions.
-        \item Allocate data buffers to host and device.
-        \item Copy data from host to device buffer to pass to the kernel.
-        \item Define parallelisation strategy (determine block size).
-    \end{itemize}
-    \item \textbf{Simulation Loop:}
-    \begin{itemize}
-        \item \textbf{Step 1:} Execute \texttt{StencilKernel} to compute next values.
-        \item \textbf{Step 2:} Apply boundary conditions using \texttt{BoundaryKernel}.
-        \item \textbf{Step 3:} Swap buffers for the next iteration so that calculated  $u_{i,j}^{n+1}$ becomes the $u_{i,j}^{n}$ for the next step.
-    \end{itemize}
-    \item \textbf{Parallel Efficiency:}
-    \begin{itemize}
-        \item Subdomains are processed in parallel, with halos ensuring data consistency and correct boundary conditions.
-        \item Optimization: Shared memory optimizes memory access within each block using chunks of data.
-    \end{itemize}
-    \item \textbf{Validation}
-\end{itemize}
-\end{frame}
+
 %------------------------------------------------
-\section{Heat Eqn. Domain and Stencil}
+\subsection{Domain and Stencil}
 %------------------------------------------------
 % All domain etc
 \begin{frame}
@@ -566,6 +558,7 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
     \end{figure}
 \end{frame}
 
+\subsection{Indexing of Stencil Kernel}
 \begin{frame}
 \frametitle{Stencil Kernel Execution by a grid of threads}
 \begin{figure}
@@ -583,6 +576,32 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
 
 \end{frame}
 
+\subsection{}
+\begin{frame}
+\frametitle{Main Simulation Loop: Leveraging Parallelism}
+\begin{itemize}
+    \item \textbf{Initialization:}
+    \begin{itemize}
+        \item Define the "host device" and "accelerator device". The "Host" and "Device" in short.
+        \item Set initial conditions and boundary conditions.
+        \item Allocate data buffers to host and device.
+        \item Copy data from host to device buffer to pass to the kernel.
+        \item Define parallelisation strategy (determine block size).
+    \end{itemize}
+    \item \textbf{Simulation Loop:}
+    \begin{itemize}
+        \item \textbf{Step 1:} Execute \texttt{StencilKernel} to compute next values.
+        \item \textbf{Step 2:} Apply boundary conditions using \texttt{BoundaryKernel}.
+        \item \textbf{Step 3:} Swap buffers for the next iteration so that calculated  $u_{i,j}^{n+1}$ becomes the $u_{i,j}^{n}$ for the next step.
+    \end{itemize}
+    \item \textbf{Parallel Efficiency:}
+    \begin{itemize}
+        \item Subdomains are processed in parallel, with halos ensuring data consistency and correct boundary conditions.
+        \item Optimization: Shared memory optimizes memory access within each block using chunks of data.
+    \end{itemize}
+    \item \textbf{Validation}
+\end{itemize}
+\end{frame}
 
 \begin{frame}
 \frametitle{Complete Heat Equation solution}
@@ -593,7 +612,7 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
 \end{figure}
 \end{frame}
 
-
+\subsection{Hands on 4: Stencil Kernel}
 \begin{frame}[fragile]
 \frametitle{The Stencil Kernel}
 \scriptsize
@@ -675,7 +694,7 @@ struct StencilKernel
 \end{frame}
 
 \section{Setting up the stage to run kernels}
-
+\subsection{alpaka Data Structures}
 \begin{frame}
 \frametitle{alpaka Basics }
 \begin{center}
@@ -813,7 +832,7 @@ alpaka::exec<Acc>(computeQueue, workDiv_manual, stencilKernel...)
 \end{lstlisting}
 \end{frame}
 
-
+\subsection{Queue Operations}
 \begin{frame}[fragile]
 \frametitle{Multiple Queues}
 \begin{itemize}
@@ -910,12 +929,12 @@ alpaka::wait(queueB, myEvent);
 \end{figure}
 \end{frame}
 
-
+\subsection{Main accelerator operations}
 \begin{frame}[fragile]
-\frametitle{Execute the Kernel and copy data back to host}
+\frametitle{Kernel execution and copying results back}
 \begin{itemize}
 
-\item First create the queue
+\item Create the queue
 \lstset{basicstyle=\ttfamily\scriptsize}
 \begin{lstlisting}
 // Create queue,
@@ -939,9 +958,9 @@ alpaka::wait(queueB, myEvent);
 \end{frame}
 %------------------------------------------------
 % mention dont provide code or detailed info
-
+\subsection{WorkDiv}
 \begin{frame}[fragile]
-\frametitle{Determine WorkDiv}
+\frametitle{Setting WorkDiv using getValidWorkDiv function}
 Let alpaka calculate work division for you:
 \lstset{basicstyle=\ttfamily\scriptsize}
 \begin{lstlisting}
@@ -952,23 +971,17 @@ Let alpaka calculate work division for you:
     constexpr alpaka::Vec<Dim, Idx> elemPerThread{1, 1};
     // Bundle the extent and elements per thread
     alpaka::KernelCfg<Acc> const kernelCfg = {extent, elemPerThread};
-    // Kernel input row-pitch and data-type-size
-    auto const pitchCurrAcc{alpaka::getPitchesInBytes(uBufAcc)};
-    // Determine the work-div
+    // Determine the work-div using kernel and kernel arguments
     auto workDiv = alpaka::getValidWorkDiv(kernelCfg, devAcc, initBufferKernel, uBufAcc.data(), pitchCurrAcc, dx, dy);
 \end{lstlisting}
 \end{frame}
 
 
 \begin{frame}[fragile]
-\frametitle{Determine the work-division manually}
+\frametitle{Setting WorkDiv Manually: Set 3 vectors of workdiv}
 \begin{lstlisting}
 // Set Dim and Index type
-using Dim1D = alpaka::DimInt<1u>; // 1 as a type
 using Idx = uint32_t;
-// M blocks each has 4 threads, each level is 1D
-alpaka::WorkDivMembers<Dim1D, Idx> workdiv1D{M, 4, 1};
-// Set Dim2D and use same index type
 using Dim2D = alpaka::DimInt<2u>; // 2 as a type
 alpaka::Vec<Dim2D, Idx> gridBlockExtent{M,N}; // 2D grid
 alpaka::Vec<Dim2D, Idx> blockThreadExtent{32,32}; // 2D block
@@ -983,7 +996,7 @@ alpaka::WorkDivMembers<Dim2D, Idx> workdiv2D{gridBlockExtent,blockThreadExtent, 
 
 \end{frame}
 
-\section{Optimization of Heat Eqn. Solution}
+\section{Optimization of Solution}
 
 \begin{frame}
 \frametitle{Optimization and usability}
@@ -991,21 +1004,22 @@ alpaka::WorkDivMembers<Dim2D, Idx> workdiv2D{gridBlockExtent,blockThreadExtent, 
       \Huge \textbf{alpaka Usability and Optimization Features}
   \end{center}
 \begin{enumerate}
- \item Use alpaka \textbf{mdspan} to set,get, pass buffers easily
- \item Use \textbf{Domain Decomposition}: Divide the domain in \textbf{chunks}
- \item Use \textbf{2 asynch queues} for performance increase
- \item Use \textbf{shared memory} for performance increase
+ \item Use alpaka \textbf{mdspan} to set, get, pass buffers easily (Hands-On 5)
+ \item Use \textbf{Domain Decomposition}: Divide the domain in \textbf{chunks} (Hands-On 6)
+ \item Use \textbf{2 asynch queues} for performance increase (Hands-On 7)
+ \item Use \textbf{shared memory} for performance increase (Hands-On 8)
  %\item Use \textbf{alpaka::UniformElements} for easier indexing
 \end{enumerate}
     \end{frame}
 
+\subsection{Hands on 5: MdSpan}
 \begin{frame}[fragile]
 \small
 \frametitle{alpaka::experimental::mdspan}
 \textbf{Mdspan a multi-dimensional and non-owning view}
 \begin{itemize}
 \item Part of C++23 standard. Can be used with C++17.
-\item Consists Data Pointer, Data Pitch and Data item size
+\item Consists pointer, pitch and data size
 \item Has member functions to get/set data and to get extents
  \end{itemize}
  \textbf{Mdspan Installation}
@@ -1017,7 +1031,7 @@ alpaka::WorkDivMembers<Dim2D, Idx> workdiv2D{gridBlockExtent,blockThreadExtent, 
 cmake -Dalpaka_USE_MDSPAN=FETCH ..
  \end{lstlisting}
 \end{itemize}
-\textbf{Create an mdspan view of a buffer, then pass to the kernel}
+\textbf{Passing mdspan to kernel}
 \lstset{basicstyle=\ttfamily\scriptsize}
 \begin{lstlisting}
  // Host code: Allocate device memory
@@ -1030,10 +1044,10 @@ cmake -Dalpaka_USE_MDSPAN=FETCH ..
  \end{frame}
 %------------------------------------------------
 \begin{frame} [fragile]
-\frametitle{Kernel using mdspan instead of data buffer pointer and pitch}
+\frametitle{Kernel using mdspan instead of data pointer and pitch info}
 \lstset{basicstyle=\ttfamily\tiny}
 
-\textbf{Example usage to access/set multi-dim data at host or in kernel}
+\textbf{Accessing data at host or at accelerator}
  \lstset{basicstyle=\ttfamily\scriptsize}
  \begin{lstlisting}
  struct MatrixAddKernel
@@ -1076,6 +1090,7 @@ struct StencilKernel
 %------------------------------------------------
 % Will go down because this is optimization: opt is shared memory, 2 queues
 %
+\subsection{Hands on 6: Domain Decomposition}
 \begin{frame}
 \frametitle{Chunk Definition}
 \textbf{Chunk:} Subdomains needed for latency management of block level parallelisation
@@ -1092,7 +1107,7 @@ struct StencilKernel
 \begin{itemize}
 %    \item \textbf{Halo Region For Shared:} A layer of block cells surrounding the main computational domain.
 
-    \item Chunking is a domain decomposition method
+    \item Chunking is a Domain Decomposition method
     \item A block of threads update a chunk of heat data
     \item A grid of threads updates the whole domain
 \end{itemize}
@@ -1103,12 +1118,12 @@ struct StencilKernel
 \end{frame}
 
 \begin{frame}
-\frametitle{Chunks in Parallel Grid Computations - I}
+\frametitle{Chunks in Parallel Grid Computations}
 \begin{itemize}
 %    \item \textbf{Halo Region For Shared:} A layer of block cells surrounding the main computational domain.
-    \item \textbf{Halo Region around chunk:} A layer of grid cells surrounding the subdomains. In order to use the heat value beside the current chunk
+    \item \textbf{Halo Region around chunk:} A layer of grid cells surrounding the subdomains.
     \item \textbf{Halo Size:} Typically 1 for a 5-point stencil.
-    \item Chunks might include more than one blocks depending on the blocksize
+    \item Chunks-size could be larger than the block size.
 \end{itemize}
 
 \begin{figure}
@@ -1123,7 +1138,7 @@ struct StencilKernel
 
 
 \begin{frame}
-\frametitle{Chunks in Parallel Grid Computations - II}
+\frametitle{A block is responsible from a chunk}
 \begin{figure}
     \centering
     \includegraphics[height=0.9\textheight]{Screenshot from 2024-10-01 12-51-51.png}
@@ -1163,7 +1178,7 @@ alpaka::WorkDivMembers<Dim, Idx> workDiv_manual{numChunks, threadsPerBlock, elem
 \end{frame}
 
 %------------------------------------------------
-
+\subsection{Hands on 7: Parallel Queues}
 \begin{frame}
 \frametitle{Running 2 parallel queues: Additional queue to dump temporary results}
 \begin{columns}
@@ -1226,7 +1241,7 @@ alpaka::WorkDivMembers<Dim, Idx> workDiv_manual{numChunks, threadsPerBlock, elem
       \Huge \textbf{Hands-On Session7: Running 2 parallel queues to dump heat at each step}
   \end{center}
 \end{frame}
-
+\subsection{Hands on 8: Shared Memory}
 
 %% Cizim yap gercek sizelar olabilir
 \begin{frame}[fragile]
@@ -1325,9 +1340,9 @@ alpaka::WorkDivMembers<Dim, Idx> workDiv_manual{numChunks, threadsPerBlock, elem
 
 %------------------------------------------------
 %------------------------------------------------
-\section{Recap}
+\section{Conclusion}
 %------------------------------------------------
-
+\subsection{Summary}
 \begin{frame}
 \frametitle{Conclusion: Parallel Techniques For Solving Heat Equation}
 \begin{itemize}
@@ -1362,9 +1377,9 @@ alpaka::WorkDivMembers<Dim, Idx> workDiv_manual{numChunks, threadsPerBlock, elem
 \end{frame}
 
 %------------------------------------------------
-
+\subsection{Questions}
 \begin{frame}
-\Huge{\centerline{This is the end of Section - II}}
+\Huge{\centerline{End of Alpaka Hackathon.}}
 \Huge{\centerline{Any Questions?}}
 \end{frame}
 
