@@ -114,10 +114,10 @@
 
 \begin{document}
 
-\section{Section-II Introduction}
 \begin{frame}
 \titlepage % Print the title page as the first slide
 \end{frame}
+\section{Section-II Introduction}
 \subsection{Schedule}
 \begin{frame}[t]{Workshop Schedule} % [t] aligns the top of the columns
 
@@ -496,7 +496,7 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
 \end{columns}
 \end{frame}
 
-\section{Main Simulation Loop of Heat Eqn.}
+\section{Parallel Solution of Heat Eqn.}
 
 %------------------------------------------------
 \subsection{Domain and Stencil}
@@ -576,9 +576,9 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
 
 \end{frame}
 
-\subsection{}
+\subsection{All Solution Steps}
 \begin{frame}
-\frametitle{Main Simulation Loop: Leveraging Parallelism}
+\frametitle{Initialization and Simulation Loop}
 \begin{itemize}
     \item \textbf{Initialization:}
     \begin{itemize}
@@ -696,7 +696,7 @@ struct StencilKernel
 \section{Setting up the stage to run kernels}
 \subsection{alpaka Data Structures}
 \begin{frame}
-\frametitle{alpaka Basics }
+\frametitle{alpaka Data Structures}
 \begin{center}
       \Huge \textbf{Setting up the stage to run kernels}
   \end{center}
