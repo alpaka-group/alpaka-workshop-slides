@@ -363,7 +363,7 @@ Hence, if a pointer of a 2D buffer is passed to the kernel as a pointer; 2 addit
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{The Kernel to Initialize Heat Values}
+\frametitle{Hands on 3: The Kernel to Initialize Heat Values}
 \small
 
 \textbf{ The \textit{InitializeBufferKernel} fills the given buffer at the accelerator device (e.g GPU)}
@@ -418,12 +418,16 @@ Hence, if a pointer of a 2D buffer is passed to the kernel as a pointer; 2 addit
 \frametitle{The Heat Equation}
 \scriptsize
 \begin{itemize}
-    \item \textbf{The heat equation models the Heat Diffusion over time in a given medium.}
-
+    \item \textbf{The Heat Diffusion over time:}
+    \fcolorbox{white}{verylightblue}{
+    \parbox{0.50\textwidth}{
     \[
     \frac{\partial u(x, y, t)}{\partial t} = \alpha \left( \frac{\partial^2 u(x, y, t)}{\partial x^2} + \frac{\partial^2 u(x, y, t)}{\partial y^2} \right)
     \]
-\textbf{Difference approximations for Time and Spatial Derivatives:}
+    } }
+\newline % Adjust the vertical space as needed
+\textbf{Time and Spatial Derivative Approximations:}
+\newline
 \begin{minipage}{0.45\textwidth}
 
      \[
@@ -441,10 +445,10 @@ Hence, if a pointer of a 2D buffer is passed to the kernel as a pointer; 2 addit
 u_{i,j}^{n+1} = u_{i,j}^n + \alpha \Delta t \left( \frac{u_{i+1,j}^n - 2u_{i,j}^n + u_{i-1,j}^n}{\Delta x^2} + \frac{u_{i,j+1}^n - 2u_{i,j}^n + u_{i,j-1}^n}{\Delta y^2} \right)
 \]
 \end{itemize}
-\vspace{-0.3\baselineskip}
+\vspace{-0.5\baselineskip}
 \begin{figure}
     \centering
-    \includegraphics[width=0.45\linewidth,height=0.35\linewidth]{Screenshot from 2024-08-30 14-04-56.png}
+    \includegraphics[width=0.50\linewidth,height=0.30\linewidth]{Screenshot from 2024-08-30 14-04-56.png}
 \end{figure}
 \end{frame}
 
@@ -461,9 +465,7 @@ u_{i,j}^{n+1} = u_{i,j}^n + \alpha \Delta t \left( \frac{u_{i+1,j}^n - 2u_{i,j}^
 \]
 \item \textbf{Substitute:}
 \vspace{0.3\baselineskip}
- \( \alpha = 1 \), \( r_X = \frac{\Delta t}{\Delta x^2} \), \( r_Y = \frac{\Delta t}{\Delta y^2} \)
-
-Then \( u_{i,j}^{n+1} \) is:
+ \( \alpha = 1 \), \( r_X = \frac{\Delta t}{\Delta x^2} \), \( r_Y = \frac{\Delta t}{\Delta y^2} \) Then \( u_{i,j}^{n+1} \) is:
 
 \[
 u_{i,j}^{n+1} = u_{i,j}^n + r_X \left( u_{i+1,j}^n - 2u_{i,j}^n + u_{i-1,j}^n \right) + r_Y \left( u_{i,j+1}^n - 2u_{i,j}^n + u_{i,j-1}^n \right)
@@ -476,6 +478,7 @@ By regrouping the terms related to \( u_{i,j}^n \), the equation can be rewritte
 u_{i,j}^{n+1} = u_{i,j}^n \left( 1 - 2r_X - 2r_Y \right) + r_X \left( u_{i+1,j}^n + u_{i-1,j}^n \right) + r_Y \left( u_{i,j+1}^n + u_{i,j-1}^n \right)
 \] }}
 \end{itemize}
+\vspace{-0.7\baselineskip}
 \begin{columns}
 \begin{column}{0.40\textwidth}
 \[
@@ -490,7 +493,7 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
 \begin{column}{0.60\textwidth}
 \begin{figure}
     \centering
-    \includegraphics[width=0.95\linewidth]{Screenshot from 2024-09-30 14-37-35.png}
+    \includegraphics[width=0.90\linewidth, height=0.50\linewidth]{Screenshot from 2024-09-30 14-37-35.png}
 \end{figure}
 \end{column}
 \end{columns}
@@ -508,7 +511,7 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
 \scriptsize
     \begin{itemize}
         \item \textbf{Data Parallelism:} Each point on the grid can be updated independently based on its neighbors, enabling parallel computation.
-        \item \textbf{Stencil Operations:} Stencil is a core computational pattern in PDE solvers. Updates a grid point in time using its immediate neighbors (left, right, up, down) according to the difference equation. A 5-point stencil is needed.
+        \item \textbf{Stencil Operations:} Stencil is a core computational pattern in PDE solvers. Updates a grid point in time using its immediate neighbors (left, right, up, down) according to the difference equation.
     \end{itemize}
     %first image without blocks
     \vspace{-0.5\baselineskip}
@@ -530,8 +533,7 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
 \vspace{-0.1\baselineskip}
     \begin{itemize}
         \item Each kernel execution by alpaka calculates $u_{i,j}^{n+1}$ using $u_{i,j}^{n}$
-        \item Each heat point is separately calculated by a thread using \textbf{Frobenious Inner Product} (FIP)
-        \item The Frobenius Inner Product between matrix \( S \) and matrix \( U_{i,j} \) is:
+        \item Each heat point is separately calculated by a thread using \textbf{Frobenious Inner Product} (FIP) of \( S \) and matrix \( U_{i,j} \):
 \[
  u_{i,j}^{n+1} = \langle S, U^{n}_{i,j} \rangle_F = \sum_{m=1}^{M} \sum_{k=1}^{K} s_{m,k} u_{m,k}
 \]
@@ -552,8 +554,8 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
     \end{itemize}
     \begin{figure}
         \centering
-        \includegraphics[width=0.8\linewidth]{Screenshot from 2024-09-21 23-44-50.png}
-        \caption{Second thread calculates $u_{0,1}^{n+1}$ using }
+        \includegraphics[width=0.8\linewidth,height=0.45\linewidth]{Screenshot from 2024-09-21 23-44-50.png}
+        \caption{Another thread calculates $u_{0,1}^{n+1}$ }
         \label{fig:enter-label}
     \end{figure}
 \end{frame}
@@ -578,7 +580,7 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
 
 \subsection{All Solution Steps}
 \begin{frame}
-\frametitle{Initialization and Simulation Loop}
+\frametitle{Heat Equation Solution}
 \begin{itemize}
     \item \textbf{Initialization:}
     \begin{itemize}
@@ -614,7 +616,7 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
 
 \subsection{Hands on 4: Stencil Kernel}
 \begin{frame}[fragile]
-\frametitle{The Stencil Kernel}
+\frametitle{Hands On 4: The Stencil Kernel}
 \scriptsize
  \textbf{\textit{What kind of parallelization needed} to calculate  $u_{i,j}^{n+1}$ using $u_{i,j}^{n}$ }
 
@@ -960,7 +962,7 @@ alpaka::wait(queueB, myEvent);
 % mention dont provide code or detailed info
 \subsection{WorkDiv}
 \begin{frame}[fragile]
-\frametitle{Determiing WorkDiv using getValidWorkDiv function}
+\frametitle{Determining WorkDiv using getValidWorkDiv function}
 \textbf{getValidWorkDiv} function calculates blocksize using \textbf{full grid extent!}
 \lstset{basicstyle=\ttfamily\scriptsize}
 \begin{lstlisting}
@@ -1047,7 +1049,7 @@ cmake -Dalpaka_USE_MDSPAN=FETCH ..
  \end{frame}
 %------------------------------------------------
 \begin{frame} [fragile]
-\frametitle{Kernel using mdspan instead of data pointer and pitch info}
+\frametitle{Kernel using mdspan instead of data pointer and pitch}
 \lstset{basicstyle=\ttfamily\tiny}
 
 \textbf{Accessing data at host or at accelerator}
@@ -1227,7 +1229,7 @@ alpaka::WorkDivMembers<Dim, Idx> workDiv_manual{numChunks, threadsPerBlock, elem
 \end{frame}
 
 \begin{frame}
-\frametitle{Copy $u^{n}$ back at each iteration in parallel by a second Acc Queue}
+\frametitle{Hands on 7: Copy $u^{n}$ back at each iteration while kernel is running}
 \begin{figure}
     \centering
     \includegraphics[width=0.8\linewidth]{Screenshot from 2024-10-17 16-11-14.png}
@@ -1261,10 +1263,6 @@ alpaka::WorkDivMembers<Dim, Idx> workDiv_manual{numChunks, threadsPerBlock, elem
          \item Filling shared memory is done by the same kernel calculating the stencil
          \item Threads in a block must synchronize to ensure all data is loaded into shared memory before computation begins.
    \end{itemize}
-  \textbf{Benefits:}
-    \begin{itemize}
-        \item Reduces memory latency by storing the working set of data (halo + core) in shared memory.
-    \end{itemize}
 \end{frame}
 
 
@@ -1287,7 +1285,7 @@ alpaka::WorkDivMembers<Dim, Idx> workDiv_manual{numChunks, threadsPerBlock, elem
 \end{frame}
 
 \begin{frame}
-\frametitle{Updating chunks using shared memory}
+\frametitle{Finding $u^{n+1}$ by using $u^{n}$ from chunks at shared memory}
 \begin{figure}
     \centering
     \includegraphics[width=0.9\linewidth]{Screenshot from 2024-10-01 13-19-49.png}
@@ -1307,7 +1305,7 @@ alpaka::WorkDivMembers<Dim, Idx> workDiv_manual{numChunks, threadsPerBlock, elem
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{Steps of Stencil Kernel using shared memory}
+\frametitle{Hands on 8: Stencil Kernel using shared memory}
 \begin{itemize}
     \item \textbf{Allocate shared memory inside kernel}
    \lstset{basicstyle=\ttfamily\scriptsize}
