@@ -785,8 +785,8 @@ alpaka::syncBlockThreads(acc);
 \begin{itemize}
  \item \textbf{alpaka::Buf} is multi-dimensional dynamic (runtime sized) container.
  \begin{itemize}
- \item Contains memory adress, extent, datatype and the device that memory belongs to!
- \item Since buffer already knows the it's device and extent; device to device copy is easy in alpaka
+ \item Contains \textbf{memory adress, extent, datatype} and the \textbf{device} that memory belongs to!
+ \item Device to device copy is easy
  \item Supports [] operator but not [][].
  \lstset{basicstyle=\ttfamily\scriptsize}
  \begin{lstlisting}
@@ -803,7 +803,7 @@ alpaka::syncBlockThreads(acc);
  \begin{lstlisting}
  alpaka::Vec<SizeOfArrayAsType,DataT> myVec;
  \end{lstlisting}
- \item \textbf{alpaka::View} is a non-owning view to an already allocated memory, so that it can be used in alpaka::memcpy
+ \item \textbf{alpaka::View} is a non-owning view to an already allocated memory, so that it can be used in alpaka::memcopy
 \end{itemize}
     \end{frame}
 
@@ -848,8 +848,7 @@ alpaka::exec<Acc>(computeQueue, workDiv_manual, stencilKernel...)
 
 \item Copying and running synchronously
 \begin{lstlisting}
-using QueueProperty = alpaka::NonBlocking;
-using QueueGpu = alpaka::Queue<AccGpu, QueueProperty>;
+using QueueGpu = alpaka::Queue<AccGpu, alpaka::NonBlocking>;
 StencilKernel<sharedMemSize> stencilKernel;
 auto queueGpu1 = QueueGpu{devGpu};
 auto queueGpu2 = QueueGpu{devGpu};
@@ -1009,7 +1008,7 @@ alpaka::WorkDivMembers<Dim2D, Idx> workdiv2D{gridBlockExtent,blockThreadExtent, 
   \end{center}
 \begin{enumerate}
  \item Use alpaka \textbf{mdspan} to set, get, pass buffers easily (Hands-On 5)
- \item Use \textbf{Domain Decomposition}: Divide the domain in \textbf{chunks} (Hands-On 6)
+ \item Use \textbf{Domain Decomposition}: Divide the domain into \textbf{chunks} (Hands-On 6)
  \item Use \textbf{2 asynch queues} for performance increase (Hands-On 7)
  \item Use \textbf{shared memory} for performance increase (Hands-On 8)
  %\item Use \textbf{alpaka::UniformElements} for easier indexing
@@ -1250,18 +1249,32 @@ alpaka::WorkDivMembers<Dim, Idx> workDiv_manual{numChunks, threadsPerBlock, elem
 %% Cizim yap gercek sizelar olabilir
 \begin{frame}[fragile]
 \frametitle{Efficient Stencil Application with Shared Memory}
+\begin{columns} %[T] % The [T] option aligns the tops of the columns
+\vspace{-1.3cm}
+\hspace*{-0.6cm} % Adjust the -1cm to move more or less to the left
+% First Column
+\begin{column}{0.56\textwidth}
+
 \textbf{Shared Memory at GPUs}
     \begin{itemize}
         \item A fast, limited-size memory accessible by all threads within a block.
-        \item Used to store data locally in Compute Unit(or SM), reducing the need to access slower global memory.
-        \item Shared Memory allocation can be static or dynamic
-        \begin{itemize}
-            \item Static (compile time determined extent)
-            \item Dynamic (runtime determined extent)
-        \end{itemize}
+        \item Faster than global memory. Stores data at CU (or SM).
+        \item Shared Memory allocation can be static or dynamic.
          \item Filling shared memory is done by the same kernel calculating the stencil
          \item Threads in a block must synchronize to ensure all data is loaded into shared memory before computation begins.
    \end{itemize}
+\end{column}
+\begin{column}{0.44\textwidth}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.96\linewidth]{Screenshot from 2024-10-18 20-08-56.png}
+   % \caption{Chunks deviding the domaing and the defined halo regions}
+    \label{fig:enter-label}
+\end{figure}
+
+\end{column}
+\end{columns}
+
 \end{frame}
 
 
