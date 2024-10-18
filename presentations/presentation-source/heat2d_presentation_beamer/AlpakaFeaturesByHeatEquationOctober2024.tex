@@ -465,7 +465,7 @@ u_{i,j}^{n+1} = u_{i,j}^n + \alpha \Delta t \left( \frac{u_{i+1,j}^n - 2u_{i,j}^
 \]
 \item \textbf{Substitute:}
 \vspace{0.3\baselineskip}
- \( \alpha = 1 \), \( r_X = \frac{\Delta t}{\Delta x^2} \), \( r_Y = \frac{\Delta t}{\Delta y^2} \) Then \( u_{i,j}^{n+1} \) is:
+ \( \alpha = 1 \), \( r_X = \frac{\Delta t}{\Delta x^2} \), \( r_Y = \frac{\Delta t}{\Delta y^2} \) . \textbf{Then \( u_{i,j}^{n+1} \) is:}
 
 \[
 u_{i,j}^{n+1} = u_{i,j}^n + r_X \left( u_{i+1,j}^n - 2u_{i,j}^n + u_{i-1,j}^n \right) + r_Y \left( u_{i,j+1}^n - 2u_{i,j}^n + u_{i,j-1}^n \right)
@@ -818,11 +818,10 @@ alpaka::syncBlockThreads(acc);
  \item Different non-blocking queues can run in parallel
  \item Within a single queue accelerator back-ends can be mixed (used in interleaves)
 \end{itemize}
-\lstset{basicstyle=\ttfamily\tiny}
+\lstset{basicstyle=\ttfamily\scriptsize}
 \begin{lstlisting}
-using QueueProperty = alpaka::NonBlocking;
 // Create queue
-using QueueAcc = alpaka::Queue<Acc, QueueProperty>;
+using QueueAcc = alpaka::Queue<Acc, alpaka::NonBlocking>;
 QueueAcc computeQueue{devAcc};
 // Copy host -> device, use the queue
 alpaka::memcpy(computeQueue, uCurrBufAcc, uBufHost);
