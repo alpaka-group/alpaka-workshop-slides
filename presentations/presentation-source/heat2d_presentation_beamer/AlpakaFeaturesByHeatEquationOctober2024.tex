@@ -481,31 +481,7 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
 \end{frame}
 
 \section{Main Simulation Loop of Heat Eqn.}
-\begin{frame}
-\frametitle{Main Simulation Loop: Leveraging Parallelism}
-\begin{itemize}
-    \item \textbf{Initialization:}
-    \begin{itemize}
-        \item Define the "host device" and "accelerator device". The "Host" and "Device" in short.
-        \item Set initial conditions and boundary conditions.
-        \item Allocate data buffers to host and device.
-        \item Copy data from host to device buffer to pass to the kernel.
-        \item Define parallelisation strategy (determine block size).
-    \end{itemize}
-    \item \textbf{Simulation Loop:}
-    \begin{itemize}
-        \item \textbf{Step 1:} Execute \texttt{StencilKernel} to compute next values.
-        \item \textbf{Step 2:} Apply boundary conditions using \texttt{BoundaryKernel}.
-        \item \textbf{Step 3:} Swap buffers for the next iteration so that calculated  $u_{i,j}^{n+1}$ becomes the $u_{i,j}^{n}$ for the next step.
-    \end{itemize}
-    \item \textbf{Parallel Efficiency:}
-    \begin{itemize}
-        \item Subdomains are processed in parallel, with halos ensuring data consistency and correct boundary conditions.
-        \item Optimization: Shared memory optimizes memory access within each block using chunks of data.
-    \end{itemize}
-    \item \textbf{Validation}
-\end{itemize}
-\end{frame}
+
 %------------------------------------------------
 \section{Heat Eqn. Domain and Stencil}
 %------------------------------------------------
@@ -583,6 +559,31 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
 
 \end{frame}
 
+\begin{frame}
+\frametitle{Main Simulation Loop: Leveraging Parallelism}
+\begin{itemize}
+    \item \textbf{Initialization:}
+    \begin{itemize}
+        \item Define the "host device" and "accelerator device". The "Host" and "Device" in short.
+        \item Set initial conditions and boundary conditions.
+        \item Allocate data buffers to host and device.
+        \item Copy data from host to device buffer to pass to the kernel.
+        \item Define parallelisation strategy (determine block size).
+    \end{itemize}
+    \item \textbf{Simulation Loop:}
+    \begin{itemize}
+        \item \textbf{Step 1:} Execute \texttt{StencilKernel} to compute next values.
+        \item \textbf{Step 2:} Apply boundary conditions using \texttt{BoundaryKernel}.
+        \item \textbf{Step 3:} Swap buffers for the next iteration so that calculated  $u_{i,j}^{n+1}$ becomes the $u_{i,j}^{n}$ for the next step.
+    \end{itemize}
+    \item \textbf{Parallel Efficiency:}
+    \begin{itemize}
+        \item Subdomains are processed in parallel, with halos ensuring data consistency and correct boundary conditions.
+        \item Optimization: Shared memory optimizes memory access within each block using chunks of data.
+    \end{itemize}
+    \item \textbf{Validation}
+\end{itemize}
+\end{frame}
 
 \begin{frame}
 \frametitle{Complete Heat Equation solution}
@@ -941,7 +942,7 @@ alpaka::wait(queueB, myEvent);
 % mention dont provide code or detailed info
 
 \begin{frame}[fragile]
-\frametitle{Determine WorkDiv}
+\frametitle{Determine WorkDiv-MethodI: Use getValidWorkDiv function}
 Let alpaka calculate work division for you:
 \lstset{basicstyle=\ttfamily\scriptsize}
 \begin{lstlisting}
@@ -952,23 +953,17 @@ Let alpaka calculate work division for you:
     constexpr alpaka::Vec<Dim, Idx> elemPerThread{1, 1};
     // Bundle the extent and elements per thread
     alpaka::KernelCfg<Acc> const kernelCfg = {extent, elemPerThread};
-    // Kernel input row-pitch and data-type-size
-    auto const pitchCurrAcc{alpaka::getPitchesInBytes(uBufAcc)};
-    // Determine the work-div
+    // Determine the work-div using kernel and kernel arguments
     auto workDiv = alpaka::getValidWorkDiv(kernelCfg, devAcc, initBufferKernel, uBufAcc.data(), pitchCurrAcc, dx, dy);
 \end{lstlisting}
 \end{frame}
 
 
 \begin{frame}[fragile]
-\frametitle{Determine the work-division manually}
+\frametitle{Determine Workdiv-MethodII: Set 3 vectors of workdiv manually}
 \begin{lstlisting}
 // Set Dim and Index type
-using Dim1D = alpaka::DimInt<1u>; // 1 as a type
 using Idx = uint32_t;
-// M blocks each has 4 threads, each level is 1D
-alpaka::WorkDivMembers<Dim1D, Idx> workdiv1D{M, 4, 1};
-// Set Dim2D and use same index type
 using Dim2D = alpaka::DimInt<2u>; // 2 as a type
 alpaka::Vec<Dim2D, Idx> gridBlockExtent{M,N}; // 2D grid
 alpaka::Vec<Dim2D, Idx> blockThreadExtent{32,32}; // 2D block
@@ -991,10 +986,10 @@ alpaka::WorkDivMembers<Dim2D, Idx> workdiv2D{gridBlockExtent,blockThreadExtent, 
       \Huge \textbf{alpaka Usability and Optimization Features}
   \end{center}
 \begin{enumerate}
- \item Use alpaka \textbf{mdspan} to set,get, pass buffers easily
- \item Use \textbf{Domain Decomposition}: Divide the domain in \textbf{chunks}
- \item Use \textbf{2 asynch queues} for performance increase
- \item Use \textbf{shared memory} for performance increase
+ \item Use alpaka \textbf{mdspan} to set, get, pass buffers easily (Hands-On 5)
+ \item Use \textbf{Domain Decomposition}: Divide the domain in \textbf{chunks} (Hands-On 6)
+ \item Use \textbf{2 asynch queues} for performance increase (Hands-On 7)
+ \item Use \textbf{shared memory} for performance increase (Hands-On 8)
  %\item Use \textbf{alpaka::UniformElements} for easier indexing
 \end{enumerate}
     \end{frame}
@@ -1005,7 +1000,7 @@ alpaka::WorkDivMembers<Dim2D, Idx> workdiv2D{gridBlockExtent,blockThreadExtent, 
 \textbf{Mdspan a multi-dimensional and non-owning view}
 \begin{itemize}
 \item Part of C++23 standard. Can be used with C++17.
-\item Consists Data Pointer, Data Pitch and Data item size
+\item Consists pointer, pitch and data size
 \item Has member functions to get/set data and to get extents
  \end{itemize}
  \textbf{Mdspan Installation}
@@ -1017,7 +1012,7 @@ alpaka::WorkDivMembers<Dim2D, Idx> workdiv2D{gridBlockExtent,blockThreadExtent, 
 cmake -Dalpaka_USE_MDSPAN=FETCH ..
  \end{lstlisting}
 \end{itemize}
-\textbf{Create an mdspan view of a buffer, then pass to the kernel}
+\textbf{Passing mdspan to kernel}
 \lstset{basicstyle=\ttfamily\scriptsize}
 \begin{lstlisting}
  // Host code: Allocate device memory
@@ -1030,10 +1025,10 @@ cmake -Dalpaka_USE_MDSPAN=FETCH ..
  \end{frame}
 %------------------------------------------------
 \begin{frame} [fragile]
-\frametitle{Kernel using mdspan instead of data buffer pointer and pitch}
+\frametitle{Kernel using mdspan instead of data pointer and pitch info}
 \lstset{basicstyle=\ttfamily\tiny}
 
-\textbf{Example usage to access/set multi-dim data at host or in kernel}
+\textbf{Accessing data at host or at accelerator}
  \lstset{basicstyle=\ttfamily\scriptsize}
  \begin{lstlisting}
  struct MatrixAddKernel
@@ -1092,7 +1087,7 @@ struct StencilKernel
 \begin{itemize}
 %    \item \textbf{Halo Region For Shared:} A layer of block cells surrounding the main computational domain.
 
-    \item Chunking is a domain decomposition method
+    \item Chunking is a Domain Decomposition method
     \item A block of threads update a chunk of heat data
     \item A grid of threads updates the whole domain
 \end{itemize}
@@ -1103,7 +1098,7 @@ struct StencilKernel
 \end{frame}
 
 \begin{frame}
-\frametitle{Chunks in Parallel Grid Computations - I}
+\frametitle{Chunks in Parallel Grid Computations}
 \begin{itemize}
 %    \item \textbf{Halo Region For Shared:} A layer of block cells surrounding the main computational domain.
     \item \textbf{Halo Region around chunk:} A layer of grid cells surrounding the subdomains. In order to use the heat value beside the current chunk
@@ -1123,7 +1118,7 @@ struct StencilKernel
 
 
 \begin{frame}
-\frametitle{Chunks in Parallel Grid Computations - II}
+\frametitle{A block is responsible from a chunk}
 \begin{figure}
     \centering
     \includegraphics[height=0.9\textheight]{Screenshot from 2024-10-01 12-51-51.png}
