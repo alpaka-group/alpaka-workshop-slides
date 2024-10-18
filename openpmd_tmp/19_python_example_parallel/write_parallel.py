@@ -10,20 +10,45 @@ from mpi4py import MPI
 import numpy as np
 import openpmd_api as io
 
+# TODO Let's try some configuration for parallel file I/O:
+#
+# First, try setting the ADIOS2 engine parameter `AggregatorRatio` to 1.
+# Run the script in parallel with and without that parameter.
+# Do you see a difference when looking into the `.bp5` folders?
+# Hint: Check the aggregation options at
+# https://adios2.readthedocs.io/en/latest/engines/engines.html#bp5
+# It's generally a good idea to read through these options to get an idea
+# of what you need to pay attention to on a parallel filesystem.
+#
+# Next, the JSON configuration below now contains a hint to HDF5 that the
+# subfiling virtual file driver should be used.
+# Run the example again using HDF5.
+# Note that the subfiling VFD will not automatically merge the written files,
+# this has to be done in a postprocessing step:
+# `for i in openPMD/*.config; do h5fuse -f "$i"; done`.
+#
+# Bonus: What does the JSON engine do when executed in parallel?
+# The output created by the JSON engine in parallel is intended more for debugging
+# purposes, with limited support for further processing of the created files.
+# Hint: For printing JSON in a readable way, use `jq`, it is installed by default
+# on LUMI, no module needs to be loaded:
+# `jq . < my_json_file.json`
+
 # Runtime configuration. Here written as a JSON object and dumped via `json.dumps()`.
 # https://openpmd-api.readthedocs.io/en/0.16.0/details/backendconfig.html
-config = {"adios2": {"engine": {}, "dataset": {}}}
+config = {"backend": "json", "adios2": {"engine": {}, "dataset": {}}, "hdf5": {}}
 # pass-through for ADIOS2 engine parameters
 # https://adios2.readthedocs.io/en/latest/engines/engines.html
-config["adios2"]["engine"] = {"parameters": {"Threads": "4", "DataTransport": "WAN"}}
+config["adios2"]["engine"] = {"parameters": {"Threads": "4"}}
 config["adios2"]["dataset"] = {"operators": [{"type": "bzip2"}]}
+config["hdf5"] = {"vfd": {"type": "subfiling"}}
 
 if __name__ == "__main__":
     comm = MPI.COMM_WORLD
 
     # create a series and specify some global metadata
     series = io.Series(
-        "openPMD/simData_%T.bp5", io.Access_Type.create, comm, json.dumps(config)
+        "openPMD/simData_%T.%E", io.Access_Type.create, comm, json.dumps(config)
     )
     series.set_author("Franz Poeschel <f.poeschel@hzdr.de>")
     series.set_software("openPMD-api-python-examples")

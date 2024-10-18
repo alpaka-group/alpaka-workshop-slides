@@ -10,16 +10,16 @@ import openpmd_api as io
 
 # Runtime configuration. Here written as a JSON object and dumped via `json.dumps()`.
 # https://openpmd-api.readthedocs.io/en/0.16.0/details/backendconfig.html
-config = {"adios2": {"engine": {}, "dataset": {}}}
+config = {"backend": "adios2", "adios2": {"engine": {}, "dataset": {}}}
 # pass-through for ADIOS2 engine parameters
 # https://adios2.readthedocs.io/en/latest/engines/engines.html
-config["adios2"]["engine"] = {"parameters": {"Threads": "4", "DataTransport": "WAN"}}
+config["adios2"]["engine"] = {"parameters": {"Threads": "4"}}
 config["adios2"]["dataset"] = {"operators": [{"type": "bzip2"}]}
 
 if __name__ == "__main__":
     # create a series and specify some global metadata
     series = io.Series(
-        "openPMD/simData_%T.bp5", io.Access_Type.create, json.dumps(config)
+        "openPMD/simData_%T.%E", io.Access_Type.create, json.dumps(config)
     )
     series.set_author("Franz Poeschel <f.poeschel@hzdr.de>")
     series.set_software("openPMD-api-python-examples")
