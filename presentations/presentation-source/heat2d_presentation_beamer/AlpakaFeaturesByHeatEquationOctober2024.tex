@@ -960,20 +960,23 @@ alpaka::wait(queueB, myEvent);
 % mention dont provide code or detailed info
 \subsection{WorkDiv}
 \begin{frame}[fragile]
-\frametitle{Setting WorkDiv using getValidWorkDiv function}
-Let alpaka calculate work division for you:
+\frametitle{Determiing WorkDiv using getValidWorkDiv function}
+\textbf{getValidWorkDiv} function calculates blocksize using \textbf{full grid extent!}
 \lstset{basicstyle=\ttfamily\scriptsize}
 \begin{lstlisting}
     // All kernel inputs are needed because work-division depends on the kernel
-    // Create kernel instance
     InitializeBufferKernel initBufferKernel;
     // Elements per thread needed to determine work-div
     constexpr alpaka::Vec<Dim, Idx> elemPerThread{1, 1};
-    // Bundle the extent and elements per thread
+    // Give full-grid thread extent as input!
     alpaka::KernelCfg<Acc> const kernelCfg = {extent, elemPerThread};
     // Determine the work-div using kernel and kernel arguments
     auto workDiv = alpaka::getValidWorkDiv(kernelCfg, devAcc, initBufferKernel, uBufAcc.data(), pitchCurrAcc, dx, dy);
 \end{lstlisting}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.75\linewidth]{Screenshot from 2024-10-18 15-16-26.png}
+\end{figure}
 \end{frame}
 
 
