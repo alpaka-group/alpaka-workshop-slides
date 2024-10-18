@@ -114,10 +114,10 @@
 
 \begin{document}
 
-\section{Section-II Introduction}
 \begin{frame}
 \titlepage % Print the title page as the first slide
 \end{frame}
+\section{Section-II Introduction}
 \subsection{Schedule}
 \begin{frame}[t]{Workshop Schedule} % [t] aligns the top of the columns
 
@@ -496,7 +496,7 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
 \end{columns}
 \end{frame}
 
-\section{Main Simulation Loop of Heat Eqn.}
+\section{Parallel Solution of Heat Eqn.}
 
 %------------------------------------------------
 \subsection{Domain and Stencil}
@@ -576,9 +576,9 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
 
 \end{frame}
 
-\subsection{}
+\subsection{All Solution Steps}
 \begin{frame}
-\frametitle{Main Simulation Loop: Leveraging Parallelism}
+\frametitle{Initialization and Simulation Loop}
 \begin{itemize}
     \item \textbf{Initialization:}
     \begin{itemize}
@@ -696,7 +696,7 @@ struct StencilKernel
 \section{Setting up the stage to run kernels}
 \subsection{alpaka Data Structures}
 \begin{frame}
-\frametitle{alpaka Basics }
+\frametitle{alpaka Data Structures}
 \begin{center}
       \Huge \textbf{Setting up the stage to run kernels}
   \end{center}
@@ -960,20 +960,23 @@ alpaka::wait(queueB, myEvent);
 % mention dont provide code or detailed info
 \subsection{WorkDiv}
 \begin{frame}[fragile]
-\frametitle{Setting WorkDiv using getValidWorkDiv function}
-Let alpaka calculate work division for you:
+\frametitle{Determiing WorkDiv using getValidWorkDiv function}
+\textbf{getValidWorkDiv} function calculates blocksize using \textbf{full grid extent!}
 \lstset{basicstyle=\ttfamily\scriptsize}
 \begin{lstlisting}
     // All kernel inputs are needed because work-division depends on the kernel
-    // Create kernel instance
     InitializeBufferKernel initBufferKernel;
     // Elements per thread needed to determine work-div
     constexpr alpaka::Vec<Dim, Idx> elemPerThread{1, 1};
-    // Bundle the extent and elements per thread
+    // Give full-grid thread extent as input!
     alpaka::KernelCfg<Acc> const kernelCfg = {extent, elemPerThread};
     // Determine the work-div using kernel and kernel arguments
     auto workDiv = alpaka::getValidWorkDiv(kernelCfg, devAcc, initBufferKernel, uBufAcc.data(), pitchCurrAcc, dx, dy);
 \end{lstlisting}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.75\linewidth]{Screenshot from 2024-10-18 15-16-26.png}
+\end{figure}
 \end{frame}
 
 
