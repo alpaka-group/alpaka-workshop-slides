@@ -7,6 +7,7 @@
   - [Introduction to Parallel Programming using alpaka](https://github.com/alpaka-group/alpaka-workshop-slides/blob/oct2024_workshop/presentations/UsingAlpakaWorkshopOctober2024.pdf)
   - [alpaka Features by 2D Heat Equation Solution](https://github.com/alpaka-group/alpaka-workshop-slides/blob/oct2024_workshop/presentations/AlpakaFeaturesByHeatEquationOctober2024.pdf)
   - [OpenPMD: Open Standard for Particle Mesh Data](https://github.com/alpaka-group/alpaka-workshop-slides/blob/oct2024_workshop/presentations/UsingOpenPMDWorkshopOctober2024.pdf)
+  - [PIConGPU:Introduction, Concepts and use of Libraries](https://github.com/alpaka-group/alpaka-workshop-slides/blob/oct2024_workshop/presentations/Plasma-PEPSC_workshop_PIConGPU_2024_10_25.pdf)  
   - [PIConGPU:Designing an application](https://github.com/alpaka-group/alpaka-workshop-slides/blob/oct2024_workshop/presentations/2024-10-25_pic-plasma-pepsc.pdf)
 
 - **Repository for hands-on exercises and presentations**
