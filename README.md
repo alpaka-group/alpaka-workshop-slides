@@ -16,7 +16,7 @@
 - **Repositories:**
   - [https://github.com/alpaka-group/alpaka](https://github.com/alpaka-group/alpaka)
   - [https://github.com/openPMD](https://github.com/openPMD)
-  - [https://github.com/openPMD/openPMD-standard/blob/latest/STANDARD.md](https://github.com/openPMD/openPMD-standard/blob/latest/STANDARD.md)
+  - [https://github.com/openPMD/openPMD-api/](https://github.com/openPMD/openPMD-api/)
   
 - **alpaka Documentation:**
   - Main Page: [https://alpaka.readthedocs.io/en/latest/index.html](https://alpaka.readthedocs.io/en/latest/index.html)

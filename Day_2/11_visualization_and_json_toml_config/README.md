@@ -10,8 +10,7 @@ OpenPMD Visualisation and Json-Toml Hands-On 11
   
 - **Repositories:**
   - [https://github.com/openPMD](https://github.com/openPMD)
-  - [https://github.com/openPMD/openPMD-standard/blob/latest/STANDARD.md](https://github.com/openPMD/openPMD-standard/blob/latest/STANDARD.md)
-
+  - [https://github.com/openPMD/openPMD-api/](https://github.com/openPMD/openPMD-api/)
   
 - **OpenPMD Documentation**
   - [OpenPMD Landing Page](https://www.openpmd.org/#/start)
