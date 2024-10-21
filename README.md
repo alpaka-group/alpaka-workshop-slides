@@ -1,16 +1,24 @@
 # Links
 
-- **Time Table for alpaka and OpenPMD Hackathon on 23-25 October 2024**
+- **Time Table for alpaka and OpenPMD Workshop on 23-25 October 2024**
   - [TimeTable](https://events.hifis.net/event/1657/timetable/#all)
 
-- **Presentations for alpaka Hackathon on 23-24 October 2024:**
+- **Presentations**
   - [Introduction to Parallel Programming using alpaka](https://github.com/alpaka-group/alpaka-workshop-slides/blob/oct2024_workshop/presentations/UsingAlpakaWorkshopOctober2024.pdf)
-  - [alpaka Features by Heat Equation Solution](https://github.com/alpaka-group/alpaka-workshop-slides/blob/oct2024_workshop/presentations/AlpakaFeaturesByHeatEquationOctober2024.pdf)
+  - [alpaka Features by 2D Heat Equation Solution](https://github.com/alpaka-group/alpaka-workshop-slides/blob/oct2024_workshop/presentations/AlpakaFeaturesByHeatEquationOctober2024.pdf)
+  - [OpenPMD: Open Standard for Particle Mesh Data](https://github.com/alpaka-group/alpaka-workshop-slides/blob/oct2024_workshop/presentations/UsingOpenPMDWorkshopOctober2024.pdf)
+  - [PIConGPU:Designing an application](https://github.com/alpaka-group/alpaka-workshop-slides/blob/oct2024_workshop/presentations/2024-10-25_pic-plasma-pepsc.pdf)
+
 - **Repository for hands-on exercises and presentations**
-  - [All documents of Workshop Alpaka Section, October 2024](https://github.com/alpaka-group/alpaka-workshop-slides/tree/oct2024_workshop)
-  - [Preparation and Hands-On1: Connecting to LUMI and Installing Alpaka](https://github.com/alpaka-group/alpaka-workshop-slides/blob/oct2024_workshop/Day_1/alpaka_install_run_example.md)   
-- **alpaka Git Repository:**
+  - [All documents of Workshop Alpaka and OpenPMD Section, October 2024](https://github.com/alpaka-group/alpaka-workshop-slides/tree/oct2024_workshop)
+  - [Preparation and Alpaka Hands-On1: Connecting to LUMI and Installing Alpaka (Day1 Hands-On 1)](https://github.com/alpaka-group/alpaka-workshop-slides/blob/oct2024_workshop/Day_1/alpaka_install_run_example.md)   
+  - [OpenMPD First Hands-On (Day2 Hands-On 9)](https://github.com/alpaka-group/alpaka-workshop-slides/tree/oct2024_workshop/Day_2/09_openpmd_basic_object_model)
+  
+- **Repositories:**
   - [https://github.com/alpaka-group/alpaka](https://github.com/alpaka-group/alpaka)
+  - [https://github.com/openPMD](https://github.com/openPMD)
+  - [https://github.com/openPMD/openPMD-api/](https://github.com/openPMD/openPMD-api/)
+  - [https://github.com/ComputationalRadiationPhysics/picongpu](https://github.com/ComputationalRadiationPhysics/picongpu)  
 
 - **alpaka Documentation:**
   - Main Page: [https://alpaka.readthedocs.io/en/latest/index.html](https://alpaka.readthedocs.io/en/latest/index.html)
@@ -18,15 +26,21 @@
   - [Cheat Sheet](https://alpaka.readthedocs.io/en/latest/basic/cheatsheet.html)
   - [CMake Variables](https://alpaka.readthedocs.io/en/latest/advanced/cmake.html)
   - [API Docs](https://alpaka-group.github.io/alpaka/)
-- **Webinar May 2024: alpaka concepts and usage**
-  - [Webinar Slides (pdf)](https://github.com/alpaka-group/alpaka-workshop-slides/blob/d40c44081c53041ce618205167c130c973c9b41e/slides-2024/UsingAlpakaForPlasmaPepscWebinar28May2024.pdf)
   
+- **OpenPMD Documentation**
+  - [OpenPMD Landing Page](https://www.openpmd.org/#/start)
+  - [Main Documentation](https://openpmd-api.readthedocs.io/en/0.16.0/index.html)
+  - [First Write](https://openpmd-api.readthedocs.io/en/0.16.0/usage/firstwrite.html)
+  - [First Read](https://openpmd-api.readthedocs.io/en/0.16.0/usage/firstread.html)
+  - [OpenPMD Projects](https://github.com/openPMD/openPMD-projects)
+  - [API Documentation](https://openpmd-api.readthedocs.io/en/0.16.0/_static/doxyhtml/index.html)  
+  
+- **Others**
+  - [Webinar May 2024: alpaka concepts and usage (pdf)](https://github.com/alpaka-group/alpaka-workshop-slides/blob/d40c44081c53041ce618205167c130c973c9b41e/slides-2024/UsingAlpakaForPlasmaPepscWebinar28May2024.pdf)
+  
+# The outline of the alpaka and openPMD hands-ons
 
-
-
-# The outline of the alpaka workshop
-
-# Section - I
+# Section I: Introduction to Alpaka
 
 ## 1. Introduction: What is alpaka, where it is used?
 - Support for **heterogeneous architectures** (e.g., CPUs, GPUs, FPGAs).
@@ -44,7 +58,7 @@
 
 ## 4. Hands-on 2: HelloIndex kernel which prints indexes
 
-# Section - II
+# Section II: Alpaka Features in Action - 2D Heat Equation
 
 ## 1. Memory management for 1D and 2D data
 - Memory Allocation, Padding and Pitch
@@ -75,3 +89,15 @@
 
 ## Timing Runs
 - Measure the performance of your kernels and analyze the timing with and without shared memory
+
+# Section III:  OpenPMD 
+
+## 9. Hands-On 9: OpenPMD Basic Object Model
+
+## 10. Hands-On 10: Metadata
+
+## 11. Hands-On 11: OpenPMD Visualisation and Json-Toml
+
+## 12. Hands-On 12: Streaming IO
+
+## 13. Hands-On 13: OpenPMD Streaming IO Solution
