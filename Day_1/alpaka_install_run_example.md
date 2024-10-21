@@ -13,9 +13,12 @@
 # /project/$PROJID/$USER/build : The build directory for alpaka installation   
 # /project/$PROJID/$USER/local : The install directory for alpaka
 
+# Generate a ssh key for lumi (perform the key generation only once!)
+ssh-keygen -t ed25519 -f ~/.ssh/lumi_key
+
 # Connect to the remote server using SSH, 
 # Use your own ssh-key filename and your LUMI account name
-ssh -i ~/.ssh/thinkpad narwalta@lumi.csc.fi
+ssh -i ~/.ssh/lumi_key <your_lumi_username>@lumi.csc.fi
 
 # Source the environment profile for the LUMI supercomputer
 # This command sets up environment variables and tools.
