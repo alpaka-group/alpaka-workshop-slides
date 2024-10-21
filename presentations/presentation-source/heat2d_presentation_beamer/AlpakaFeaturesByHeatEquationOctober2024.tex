@@ -339,8 +339,7 @@ alpaka::exec<Acc>(queue, workDiv, initBufKernel, uBufAcc.data(), ...);
  \begin{itemize}
  \item \textbf{Pass 3 variables for a buffer: pointer,  "row-pitch", and datasize}
 
-Multi-dimensional memory allocated in memory uses aligned rows.
-Hence, if a pointer of a 2D buffer is passed to the kernel as a pointer; 2 additional values \textbf{pitch} and item \textbf{data-size} should also be passed.
+If a pointer of a 2D buffer is passed to the kernel as a pointer; 2 additional values \textbf{pitch} and item \textbf{data-size} should also be passed.
 
         \lstset{basicstyle=\ttfamily\scriptsize}
         \begin{lstlisting}
@@ -535,6 +534,7 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
 \scriptsize
     \begin{itemize}
         \item \textbf{Data Parallelism:} Each point on the grid can be updated independently based on its neighbors, enabling parallel computation.
+        \item \textbf{Independency:} Next values of heat at a point does not depend on previous heat values.
         \item \textbf{Stencil Operations:} Stencil is a core computational pattern in PDE solvers. Updates a grid point in time using its immediate neighbors (left, right, up, down) according to the difference equation.
     \end{itemize}
     %first image without blocks
@@ -545,19 +545,17 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
         \label{fig:enter-label}
     \end{figure}
     \begin{itemize}
-        \item \textbf{Halo Region for BC:} A layer of grid cells surrounding the problem domain for Boundary Conditions.
-        \begin{itemize}
-            \item Facilitates stencil operations at the boundaries of subdomains.
-        \end{itemize}
-    \end{itemize}
+        \item \textbf{Halo Region for BC:} A layer of grid cells added to the core-domain surrounding the problem domain for Boundary Conditions.
+       \end{itemize}
+
 \end{frame}
 
 \begin{frame}
 \frametitle{Calculation of $u_{i,j}^{n+1}$ from $u_{i,j}^{n}$}
 \vspace{-0.1\baselineskip}
     \begin{itemize}
-        \item Each kernel execution by alpaka calculates $u_{i,j}^{n+1}$ using $u_{i,j}^{n}$
-        \item Each heat point is separately calculated by a thread using \textbf{Frobenious Inner Product} (FIP) of \( S \) and matrix \( U_{i,j} \):
+        \item Kernel execution by thread ${i,j}$  calculates $u_{i,j}^{n+1}$ using $u_{i,j}^{n}$
+        \item Hence, Each heat point is separately calculated by a thread using \textbf{Frobenious Inner Product} (FIP) of \( S \) and matrix \( U_{i,j} \):
 \[
  u_{i,j}^{n+1} = \langle S, U^{n}_{i,j} \rangle_F = \sum_{m=1}^{M} \sum_{k=1}^{K} s_{m,k} u_{m,k}
 \]
@@ -586,7 +584,7 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
 
 \subsection{Indexing of Stencil Kernel}
 \begin{frame}
-\frametitle{Stencil Kernel Execution by a grid of threads}
+\frametitle{A grid of threads is used to find next 2D heat values}
 \begin{figure}
     \centering
     \includegraphics[width=0.86\linewidth]{Screenshot from 2024-10-02 16-04-45.png}
@@ -594,13 +592,40 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
 
 \begin{itemize}
     \item Stencil kernel will update only core nodes not the border
-    \item The workdiv for stencil kernel can be calculated by setting gridthread extent to nodes domain
-    \item The workdiv for the borders kernel would need extended extents, because halo is going to updated as well
-    %\item Some threads other than the ones updating the border will do nothing when running Boundary kernel
+    \item The workdiv for stencil-kernel can be calculated by setting grid-thread extent to nodes domain
+    \item The workdiv for the borders-kernel would need larger extents but will only work on borders.    %\item Some threads other than the ones updating the border will do nothing when running Boundary kernel
 \end{itemize}
 
 
 \end{frame}
+
+% FULL SOLUTION INCLUDING SHARED
+%\subsection{All Solution Steps}
+%\begin{frame}
+%\frametitle{Heat Equation Solution}
+%\begin{itemize}
+%    \item \textbf{Initialization:}
+%    \begin{itemize}
+%        \item Define the "host device" and "accelerator device". The "Host" and "Device" in short.
+%        \item Set initial conditions and boundary conditions.
+%        \item Allocate data buffers to host and device.
+%        \item Copy data from host to device buffer to pass to the kernel.
+%        \item Define parallelisation strategy (determine block size).
+%    \end{itemize}
+%    \item \textbf{Simulation Loop:}
+%    \begin{itemize}
+%        \item \textbf{Step 1:} Execute \texttt{StencilKernel} to compute next values.
+%        \item \textbf{Step 2:} Apply boundary conditions using \texttt{BoundaryKernel}.
+%        \item \textbf{Step 3:} Swap buffers for the next iteration so that calculated  $u_{i,j}^{n+1}$ becomes the $u_{i,j}^{n}$ for the next step.
+%    \end{itemize}
+%    \item \textbf{Parallel Efficiency:}
+%    \begin{itemize}
+%        \item Subdomains are processed in parallel, with halos ensuring data consistency and correct boundary conditions.
+%        \item Optimization: Shared memory optimizes memory access within each block using chunks of data.
+%    \end{itemize}
+%    \item \textbf{Validation}
+%\end{itemize}
+%\end{frame}
 
 \subsection{All Solution Steps}
 \begin{frame}
@@ -620,10 +645,9 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
         \item \textbf{Step 2:} Apply boundary conditions using \texttt{BoundaryKernel}.
         \item \textbf{Step 3:} Swap buffers for the next iteration so that calculated  $u_{i,j}^{n+1}$ becomes the $u_{i,j}^{n}$ for the next step.
     \end{itemize}
-    \item \textbf{Parallel Efficiency:}
+    \item \textbf{Copy result from Acc to Host:}
     \begin{itemize}
-        \item Subdomains are processed in parallel, with halos ensuring data consistency and correct boundary conditions.
-        \item Optimization: Shared memory optimizes memory access within each block using chunks of data.
+        \item Use alpaka::memcpy to copy latest 2D heat buffer $u^{n}$ to host back.
     \end{itemize}
     \item \textbf{Validation}
 \end{itemize}
@@ -659,6 +683,7 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
     \item \textbf{Input:} Check the size of the input buffer, it should include halo region as well
     \item \textbf{Thread Index:} Find thread index in the kernel. This index will be used as the center of 3x3 stencil.
     \item \textbf{Memory Adress in Buffer:} Calculate the corresponding memory adress in buffer using thread index. Take into account pitch and data-size
+    \item \textbf{Find Stencil matrix} Use dx, dy, dt to calculate the stencil matrix
     \item \textbf{Calculate new heat value:} Calculate $u_{i,j}^{n+1}$ using \textbf{Frobenious Inner Product} of 3x3 matrices
     \item \textbf{Set Value at the Adress:} Set the data at the memory adress.
     \end{itemize}
@@ -729,7 +754,7 @@ struct StencilKernel
 \begin{enumerate}
  \item Selecting the accelerator and host devices
  \item Allocating and setting host and accelerator device memory
- \item Alpaka Vector, Buffer and View?
+ \item Alpaka Vector, Buffer and View
  \item Passing data to the accelarator
  \item WorkDiv
  \item Define Queue
@@ -819,7 +844,7 @@ alpaka::syncBlockThreads(acc);
  auto bufGpu = alpaka::allocBuf<float, Idx>(devGpu, extent);
  ....
  // Copy buffer from CPU to GPU - destination comes first
- alpaka::memcopy(gpuQueue, bufGpu, bufCpu);
+ alpaka::memcpy(gpuQueue, bufGpu, bufCpu);
  // cuda way: cudaMemcpy(b_d, b_host, sizeof(float)*N, cudaMemcpyHostToDevice);
  \end{lstlisting}
  \end{itemize}
@@ -827,10 +852,39 @@ alpaka::syncBlockThreads(acc);
  \begin{lstlisting}
  alpaka::Vec<SizeOfArrayAsType,DataT> myVec;
  \end{lstlisting}
- \item \textbf{alpaka::View} is a non-owning view to an already allocated memory, so that it can be used in alpaka::memcopy
+ \item \textbf{alpaka::View} is a non-owning view to an already allocated memory, so that it can be used in alpaka::memcpy
 \end{itemize}
     \end{frame}
 
+\subsection{Main accelerator operations}
+\begin{frame}[fragile]
+\frametitle{Kernel execution and copying results back}
+\begin{itemize}
+
+\item Create the queue
+\lstset{basicstyle=\ttfamily\scriptsize}
+\begin{lstlisting}
+// Create queue,
+// queue is needed for kernel execution and copies to/from accelerator
+    alpaka::Queue<Acc, alpaka::NonBlocking> queue{devAcc};
+\end{lstlisting}
+
+\item Execute the kernel using the queue, the workdiv and kernel arguments:
+\lstset{basicstyle=\ttfamily\scriptsize}
+\begin{lstlisting}
+    alpaka::exec<Acc>(queue, workDiv, initBufferKernel, uBufAcc.data(), pitchCurrAcc, dx, dy);
+\end{lstlisting}
+\item Copy the filled buffer back to the host
+\begin{lstlisting}
+     // Copy device -> host
+     // Since buffers know their corresponding devices (host or acc) memcopy does not need any device variable
+    alpaka::memcpy(queue, uBufHost, uBufAcc);
+    alpaka::wait(queue);
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+
+\subsection{Queue}
 
 \begin{frame} [fragile]
 \frametitle{What is alpaka::Queue}
@@ -838,7 +892,7 @@ alpaka::syncBlockThreads(acc);
  \item \textbf{alpaka::Queue} is “a queue of tasks”.
  \item Used for sycnhronization of tasks like memcpy or kernel-execution
  \item Queue is always FIFO, everything is sequential (in-order) inside the alpaka::queue
- \item If the Queue is non-blocking the caller(host) is not blocked
+ \item If the Queue is \textbf{non-blocking} the caller(host) is not blocked
  \item Different non-blocking queues can run in parallel
  \item Within a single queue accelerator back-ends can be mixed (used in interleaves)
 \end{itemize}
@@ -953,33 +1007,7 @@ alpaka::wait(queueB, myEvent);
 \end{figure}
 \end{frame}
 
-\subsection{Main accelerator operations}
-\begin{frame}[fragile]
-\frametitle{Kernel execution and copying results back}
-\begin{itemize}
 
-\item Create the queue
-\lstset{basicstyle=\ttfamily\scriptsize}
-\begin{lstlisting}
-// Create queue,
-// queue is needed for kernel execution and copies to/from accelerator
-    alpaka::Queue<Acc, alpaka::NonBlocking> queue{devAcc};
-\end{lstlisting}
-
-\item Execute the kernel using the queue, the workdiv and kernel arguments:
-\lstset{basicstyle=\ttfamily\scriptsize}
-\begin{lstlisting}
-    alpaka::exec<Acc>(queue, workDiv, initBufferKernel, uBufAcc.data(), pitchCurrAcc, dx, dy);
-\end{lstlisting}
-\item Copy the filled buffer back to the host
-\begin{lstlisting}
-     // Copy device -> host
-     // Since buffers know their corresponding devices (host or acc) memcopy does not need any device variable
-    alpaka::memcpy(queue, uBufHost, uBufAcc);
-    alpaka::wait(queue);
-\end{lstlisting}
-\end{itemize}
-\end{frame}
 %------------------------------------------------
 % mention dont provide code or detailed info
 \subsection{WorkDiv}
