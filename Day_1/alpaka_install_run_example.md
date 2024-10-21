@@ -7,15 +7,15 @@
 # $PROJID :LUMI project name and folder name we will be using (actually it is "project_465001310") 
 # 
 # - Code Directories to be created 
-# /users/$USER/src : the directory to be created for Alpaka source and training codes
+# /users/$USER/src : the directory to be created for alpaka source and training codes
 #
-# - Alpaka Installation Directories to be created for alpaka install
-# /project/$PROJID/$USER/build : The build directory for alpaka installation   
-# /project/$PROJID/$USER/local : The install directory for alpaka
+# - alpaka Installation Directories to be created for alpaka install
+# /scratch/$PROJID/$USER/build : The build directory for alpaka installation   
+# /scratch/$PROJID/$USER/local : The install directory for alpaka
 
-# Connect to the remote server using SSH, 
+# Connect to LUMI using SSH
 # Use your own ssh-key filename and your LUMI account name
-ssh -i ~/.ssh/thinkpad narwalta@lumi.csc.fi
+ssh -i ~/pathTo/key username@lumi.csc.fi
 
 # Source the environment profile for the LUMI supercomputer
 # This command sets up environment variables and tools.
@@ -29,7 +29,7 @@ mkdir src && cd src
 git clone -b 1.2.0 --single-branch https://github.com/alpaka-group/alpaka.git
 
 # Navigate to the project directory using the environment variable `$PROJID`
-cd /project/$PROJID
+cd /scratch/$PROJID
 
 # Check your username to verify the environment is set up correctly
 echo $USER
@@ -59,7 +59,7 @@ getDevice
 
 # The `local` directory will hold installed files
 # Run CMake to generate build files from the source directory of alpaka
-cmake -DCMAKE_INSTALL_PREFIX=/project/$PROJID/$USER/local ~/src/alpaka
+cmake -DCMAKE_INSTALL_PREFIX=/scratch/$PROJID/$USER/local ~/src/alpaka
 
 # After configuration, exit the CMake interface and proceed to build the project.
 # Use the `-j` flag to parallelize the build for faster compilation.
@@ -69,7 +69,7 @@ make -j
 make install
 
 # Add custom path where alpaka was installed to CMake search paths
-export CMAKE_PREFIX_PATH="$CMAKE_PREFIX_PATH:/project/$PROJID/$USER/local"
+export CMAKE_PREFIX_PATH="$CMAKE_PREFIX_PATH:/scratch/$PROJID/$USER/local"
 
 # Run the vector addition example from alpaka to test installation and performance.
 # Discuss how memory movement between devices may impact performance.
@@ -138,8 +138,8 @@ sftp> mkdir remote_directory
 
 sshfs -o follow_symlinks -o IdentityFile=~/.ssh/your_key_for_lumi your_lumi_username@lumi.csc.fi:/users/your_lumi_username/ /home/your_local_username/mnt/ -o auto_cache
 
-# A working example command for narwalta LUMI user, local user directory is /home/ikbuibui/mnt/ to mount the lumi filesystem
-# sshfs -o follow_symlinks -o IdentityFile=~/.ssh/thinkpad narwalta@lumi.csc.fi:/users/narwalta/ /home/ikbuibui/mnt/ -o auto_cache
+# A working example command for name_example LUMI user, local user directory is /home/username/mnt/ to mount the lumi filesystem
+# sshfs -o follow_symlinks -o IdentityFile=~/pathTo/key name_example@lumi.csc.fi:/users/name_example/ /home/username/mnt/ -o auto_cache
 # NOTE for macOS: macOS needs macFUSE and sshfs for mounting remote directories.
 # NOTE for Windows: Windows requires WinFsp and SSHFS-Win to achieve the same functionality.
 

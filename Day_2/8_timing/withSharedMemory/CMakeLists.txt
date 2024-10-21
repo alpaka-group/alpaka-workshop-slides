@@ -17,7 +17,7 @@ set(_TARGET_NAME heatEquation2D)
 
 project(${_TARGET_NAME} LANGUAGES CXX)
 
-list(APPEND CMAKE_PREFIX_PATH "/project/${PROJID}/${USER}/local")
+list(APPEND CMAKE_PREFIX_PATH "/scratch/${PROJID}/${USER}/local")
 
 ################################################################################
 # PNGwriter
