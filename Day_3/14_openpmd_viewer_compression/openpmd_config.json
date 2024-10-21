@@ -1,0 +1,22 @@
+{
+  "backend": "adios2",
+  "adios2": {
+    "engine": {
+      "type": "bp5",
+      "parameters": {
+        "StatsLevel": 1
+      }
+    },
+    "dataset": {
+      "operators": [
+        {
+          "type": "blosc",
+          "parameters": {
+            "clevel": 9,
+            "doshuffle": "BLOSC_BITSHUFFLE"
+          }
+        }
+      ]
+    }
+  }
+}

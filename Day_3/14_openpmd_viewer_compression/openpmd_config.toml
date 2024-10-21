@@ -1,0 +1,18 @@
+# Reference: https://openpmd-api.readthedocs.io/en/0.16.0/details/backendconfig.html
+backend = "adios2"
+
+[adios2.engine]
+type = "bp5"
+
+# Engine parameters listed at:
+# https://adios2.readthedocs.io/en/v2.10.1/engines/engines.html
+[adios2.engine.parameters]
+StatsLevel = 1
+
+# Compression operators unfortunately not well documented in ADIOS2.
+# Available operators can be seen in this source file:
+# https://github.com/ornladios/ADIOS2/blob/master/source/adios2/operator/OperatorFactory.cpp
+[[adios2.dataset.operators]]
+type = "blosc"
+parameters.clevel = 9
+parameters.doshuffle = "BLOSC_BITSHUFFLE"
