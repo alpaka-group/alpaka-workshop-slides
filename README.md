@@ -92,6 +92,9 @@
 
 # Section III:  OpenPMD 
 
+This session will introduce the participants to the scientific metadata format openPMD. 
+The practical sessions and exercises will include the basic modeling of scientific data via the openPMD-api, possibilities for visualizing openPMD data, streaming I/O workflows, data compression, parallel I/O and more.
+
 ## 9. Hands-On 9: OpenPMD Basic Object Model
 
 ## 10. Hands-On 10: Metadata
