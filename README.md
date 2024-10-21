@@ -105,3 +105,16 @@ The practical sessions and exercises will include the basic modeling of scientif
 ## 12. Hands-On 12: Streaming IO
 
 ## 13. Hands-On 13: OpenPMD Streaming IO Solution
+
+## 14. Hands-On 9: OpenPMD Viewer Compression
+
+## 15. Hands-On 10: Span API
+
+## 16. Hands-On 11: Span API Solution
+
+## 17. Hands-On 12: Constant Components Python Example
+
+## 18. Hands-On 13: Parallel Python Example
+
+## 18. Hands-On 13: Parallel Python Example Solution
+
