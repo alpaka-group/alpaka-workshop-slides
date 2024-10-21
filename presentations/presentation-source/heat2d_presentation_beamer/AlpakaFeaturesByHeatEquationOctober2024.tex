@@ -550,6 +550,22 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
 
 \end{frame}
 
+
+\begin{frame}
+\frametitle{Halo Region}
+\vspace{-0.5\baselineskip}
+\scriptsize
+    %first image without blocks
+    \vspace{-0.5\baselineskip}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.6\linewidth]{Screenshot from 2024-10-22 01-51-12.png}
+        \label{fig:enter-label}
+    \end{figure}
+
+\end{frame}
+
+
 \begin{frame}
 \frametitle{Calculation of $u_{i,j}^{n+1}$ from $u_{i,j}^{n}$}
 \vspace{-0.1\baselineskip}
@@ -593,7 +609,7 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
 \begin{itemize}
     \item Stencil kernel will update only core nodes not the border
     \item The workdiv for stencil-kernel can be calculated by setting grid-thread extent to nodes domain
-    \item The workdiv for the borders-kernel would need larger extents but will only work on borders.    %\item Some threads other than the ones updating the border will do nothing when running Boundary kernel
+    \item The workdiv for the borders-kernel would need larger extents, but will only work on borders of this extended domain.    %\item Some threads other than the ones updating the border will do nothing when running Boundary kernel
 \end{itemize}
 
 
@@ -884,6 +900,50 @@ alpaka::syncBlockThreads(acc);
 \end{itemize}
 \end{frame}
 
+
+%------------------------------------------------
+% mention dont provide code or detailed info
+\subsection{WorkDiv}
+\begin{frame}[fragile]
+\frametitle{Determining WorkDiv using getValidWorkDiv function}
+\textbf{getValidWorkDiv} function calculates blocksize using \textbf{full grid extent!}
+\lstset{basicstyle=\ttfamily\scriptsize}
+\begin{lstlisting}
+    // All kernel inputs are needed because work-division depends on the kernel
+    InitializeBufferKernel initBufferKernel;
+    // Elements per thread needed to determine work-div
+    constexpr alpaka::Vec<Dim, Idx> elemPerThread{1, 1};
+    // Give full-grid thread extent as input!
+    alpaka::KernelCfg<Acc> const kernelCfg = {extent, elemPerThread};
+    // Determine the work-div using kernel and kernel arguments
+    auto workDiv = alpaka::getValidWorkDiv(kernelCfg, devAcc, initBufferKernel, uBufAcc.data(), pitchCurrAcc, dx, dy);
+\end{lstlisting}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.75\linewidth]{Screenshot from 2024-10-18 15-16-26.png}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Setting WorkDiv Manually: Set 3 vectors of workdiv}
+\begin{lstlisting}
+// Set Dim and Index type
+using Idx = uint32_t;
+using Dim2D = alpaka::DimInt<2u>; // 2 as a type
+alpaka::Vec<Dim2D, Idx> gridBlockExtent{M,N}; // 2D grid
+alpaka::Vec<Dim2D, Idx> blockThreadExtent{32,32}; // 2D block
+alpaka::Vec<Dim2D, Idx> elementExtentPerThread{1,1};
+// MxN blocks each has 32x32 threads, each level is 2D
+alpaka::WorkDivMembers<Dim2D, Idx> workdiv2D{gridBlockExtent,blockThreadExtent, elementExtentPerThread};
+\end{lstlisting}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.75\linewidth]{workdivManual.png}
+\end{figure}
+
+\end{frame}
+
 \subsection{Queue}
 
 \begin{frame} [fragile]
@@ -1005,50 +1065,6 @@ alpaka::wait(queueB, myEvent);
     \includegraphics[width=0.93\linewidth]{Screenshot from 2024-10-16 16-53-06.png}
     \label{fig:enter-label}
 \end{figure}
-\end{frame}
-
-
-%------------------------------------------------
-% mention dont provide code or detailed info
-\subsection{WorkDiv}
-\begin{frame}[fragile]
-\frametitle{Determining WorkDiv using getValidWorkDiv function}
-\textbf{getValidWorkDiv} function calculates blocksize using \textbf{full grid extent!}
-\lstset{basicstyle=\ttfamily\scriptsize}
-\begin{lstlisting}
-    // All kernel inputs are needed because work-division depends on the kernel
-    InitializeBufferKernel initBufferKernel;
-    // Elements per thread needed to determine work-div
-    constexpr alpaka::Vec<Dim, Idx> elemPerThread{1, 1};
-    // Give full-grid thread extent as input!
-    alpaka::KernelCfg<Acc> const kernelCfg = {extent, elemPerThread};
-    // Determine the work-div using kernel and kernel arguments
-    auto workDiv = alpaka::getValidWorkDiv(kernelCfg, devAcc, initBufferKernel, uBufAcc.data(), pitchCurrAcc, dx, dy);
-\end{lstlisting}
-\begin{figure}
-    \centering
-    \includegraphics[width=0.75\linewidth]{Screenshot from 2024-10-18 15-16-26.png}
-\end{figure}
-\end{frame}
-
-
-\begin{frame}[fragile]
-\frametitle{Setting WorkDiv Manually: Set 3 vectors of workdiv}
-\begin{lstlisting}
-// Set Dim and Index type
-using Idx = uint32_t;
-using Dim2D = alpaka::DimInt<2u>; // 2 as a type
-alpaka::Vec<Dim2D, Idx> gridBlockExtent{M,N}; // 2D grid
-alpaka::Vec<Dim2D, Idx> blockThreadExtent{32,32}; // 2D block
-alpaka::Vec<Dim2D, Idx> elementExtentPerThread{1,1};
-// MxN blocks each has 32x32 threads, each level is 2D
-alpaka::WorkDivMembers<Dim2D, Idx> workdiv2D{gridBlockExtent,blockThreadExtent, elementExtentPerThread};
-\end{lstlisting}
-\begin{figure}
-    \centering
-    \includegraphics[width=0.75\linewidth]{workdivManual.png}
-\end{figure}
-
 \end{frame}
 
 \section{Optimization of Solution}
