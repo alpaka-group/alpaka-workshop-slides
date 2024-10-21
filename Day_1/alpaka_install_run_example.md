@@ -25,8 +25,8 @@ source /project/project_465001310/workshop_software/env.sh
 # Create and navigate to a source directory to store your project
 mkdir src && cd src
 
-# Clone the alpaka repository from the `develop` branch using HTTPS
-git clone -b develop --single-branch https://github.com/alpaka-group/alpaka.git
+# Clone the alpaka repository from the `1.2.0` release using HTTPS
+git clone -b 1.2.0 --single-branch https://github.com/alpaka-group/alpaka.git
 
 # Navigate to the project directory using the environment variable `$PROJID`
 cd /project/$PROJID
