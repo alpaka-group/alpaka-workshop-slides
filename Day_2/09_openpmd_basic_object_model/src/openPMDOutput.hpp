@@ -1,5 +1,6 @@
 #pragma once
 
+#include <alpaka/alpaka.hpp>
 #include <openPMD/openPMD.hpp>
 
 #ifdef OPENPMD_ENABLED
