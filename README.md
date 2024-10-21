@@ -1,30 +1,40 @@
 # Links
 
-- **Time Table for alpaka and OpenPMD Hackathon on 23-25 October 2024**
+- **Time Table for alpaka and OpenPMD Workshop on 23-25 October 2024**
   - [TimeTable](https://events.hifis.net/event/1657/timetable/#all)
 
 - **Presentations for alpaka and OpenPMD Hackathons on 23-24 October 2024:**
   - [Introduction to Parallel Programming using alpaka](https://github.com/alpaka-group/alpaka-workshop-slides/blob/oct2024_workshop/presentations/UsingAlpakaWorkshopOctober2024.pdf)
-  - [alpaka Features by Heat Equation Solution](https://github.com/alpaka-group/alpaka-workshop-slides/blob/oct2024_workshop/presentations/AlpakaFeaturesByHeatEquationOctober2024.pdf)
+  - [alpaka Features by 2D Heat Equation Solution](https://github.com/alpaka-group/alpaka-workshop-slides/blob/oct2024_workshop/presentations/AlpakaFeaturesByHeatEquationOctober2024.pdf)
   - [OpenPMD: Open Standard for Particle Mesh Data](https://github.com/alpaka-group/alpaka-workshop-slides/blob/oct2024_workshop/presentations/UsingOpenPMDWorkshopOctober2024.pdf)
 
 - **Repository for hands-on exercises and presentations**
   - [All documents of Workshop Alpaka and OpenPMD Section, October 2024](https://github.com/alpaka-group/alpaka-workshop-slides/tree/oct2024_workshop)
   - [Preparation and Alpaka Hands-On1: Connecting to LUMI and Installing Alpaka](https://github.com/alpaka-group/alpaka-workshop-slides/blob/oct2024_workshop/Day_1/alpaka_install_run_example.md)   
-- **alpaka Git Repository:**
+  - [OpenMPD First Hands-On (Day2 Hands-On 9)](https://github.com/alpaka-group/alpaka-workshop-slides/tree/oct2024_workshop/Day_2/09_openpmd_basic_object_model)
+  
+- **Repositories:**
   - [https://github.com/alpaka-group/alpaka](https://github.com/alpaka-group/alpaka)
-
+  - [https://github.com/openPMD](https://github.com/openPMD)
+  
 - **alpaka Documentation:**
   - Main Page: [https://alpaka.readthedocs.io/en/latest/index.html](https://alpaka.readthedocs.io/en/latest/index.html)
   - [Installation Guide](https://alpaka.readthedocs.io/en/latest/)
   - [Cheat Sheet](https://alpaka.readthedocs.io/en/latest/basic/cheatsheet.html)
   - [CMake Variables](https://alpaka.readthedocs.io/en/latest/advanced/cmake.html)
   - [API Docs](https://alpaka-group.github.io/alpaka/)
-- **Webinar May 2024: alpaka concepts and usage**
-  - [Webinar Slides (pdf)](https://github.com/alpaka-group/alpaka-workshop-slides/blob/d40c44081c53041ce618205167c130c973c9b41e/slides-2024/UsingAlpakaForPlasmaPepscWebinar28May2024.pdf)
   
-
-
+- **OpenPMD Documentation**
+  - [OpenPMD Landing Page](https://www.openpmd.org/#/start)
+  - [Main Documentation](https://openpmd-api.readthedocs.io/en/0.16.0/index.html)
+  - [First Write](https://openpmd-api.readthedocs.io/en/0.16.0/usage/firstwrite.html)
+  - [First Read](https://openpmd-api.readthedocs.io/en/0.16.0/usage/firstread.html)
+  - [OpenPMD Projects](https://github.com/openPMD/openPMD-projects)
+  - [API Documentation](https://openpmd-api.readthedocs.io/en/0.16.0/_static/doxyhtml/index.html)  
+  
+- **Others**
+  - [Webinar May 2024: alpaka concepts and usage (pdf)](https://github.com/alpaka-group/alpaka-workshop-slides/blob/d40c44081c53041ce618205167c130c973c9b41e/slides-2024/UsingAlpakaForPlasmaPepscWebinar28May2024.pdf)
+  
 
 # The outline of the alpaka workshop
 
