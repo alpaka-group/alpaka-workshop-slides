@@ -1,4 +1,4 @@
-OpenPMD Workshop Metadata HAnds-On 10
+# OpenPMD Metadata (Workshop Hands-On 10)
 
 
 - **Presentation of  OpenPMD Hackathon on 24-25 October 2024:**

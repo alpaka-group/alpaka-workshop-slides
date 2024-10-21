@@ -1,4 +1,4 @@
-OpenPMD Streaming IO Solution Hands-On 13
+# OpenPMD Streaming IO Solution (Workshop Hands-On 13)
 
 
 - **Presentation of  OpenPMD Hackathon on 24-25 October 2024:**

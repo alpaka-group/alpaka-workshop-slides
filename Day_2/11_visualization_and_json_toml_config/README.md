@@ -1,4 +1,4 @@
-OpenPMD Visualisation and Json-Toml Hands-On 11
+# OpenPMD Visualisation and Json-Toml (Workshop Hands-On 11)
 
 
 - **Presentation of  OpenPMD Hackathon on 24-25 October 2024:**

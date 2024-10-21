@@ -1,5 +1,7 @@
-OpenPMD Basic Object Model Hands-On 9
+First OpenPMD Hands-On
+# OpenPMD Basic Object Model (Workshop Hands-On 9)
 
+The OpenPMD section of the workshop introduces participants to the scientific metadata format openPMD. The practical sessions and exercises will include the basic modeling of scientific data via the openPMD-api, possibilities for visualizing openPMD data, streaming I/O workflows, data compression, parallel I/O and more.
 
 - **Presentation of  OpenPMD Hackathon on 24-25 October 2024:**
   - [OpenPMD: Open Standard for Particle Mesh Data](https://github.com/alpaka-group/alpaka-workshop-slides/blob/oct2024_workshop/presentations/UsingOpenPMDWorkshopOctober2024.pdf)
