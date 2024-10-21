@@ -189,10 +189,10 @@
     \begin{enumerate}
      \item Select the accelerator
      \item Create host-device, acc-device and the queue
-     \item Allocate host and device memory
-     \item Decide how to parallelize: set work-division
-     \item Decide where will the parallel and non-parallel parts of the code run
-     \item Create the kernel instance and execute kernel
+     \item Allocate host and device memory using Buf and Vec data structures
+     \item Decide how to parallelize: Set the work-division
+     \item Create the kernel instance for filling the buffer
+     \item Execute the kernel
      \item Copy the result from Acc (e.g GPU) back to the host buffer.
     \end{enumerate}
     \end{column}
@@ -200,7 +200,7 @@
     % Second column
     \begin{column}{0.45\textwidth} % 50% of the width
         \centering
-        \includegraphics[width=\linewidth]{Screenshot from 2024-09-25 12-39-55.png} % Replace with your image
+        \includegraphics[width=\linewidth]{Screenshot from 2024-10-20 23-39-02.png} % Replace with your image
         %\caption{Filling A Buffer in Parallel}
     \end{column}
 
@@ -219,20 +219,18 @@
 
 
  \begin{frame}[fragile]
+ \vspace{-0.2cm}
 \frametitle{Allocate memory at Host and at Device}
-
 \textbf{Define number of dim and index type}
 \begin{lstlisting}
 using Dim = alpaka::DimInt<2u>; // Number of dim: 2 as a type
 using Idx = std::size_t; // Index type of the threads and buffers
  \end{lstlisting}
 
-\textbf{Define domain and halo extents}
+\textbf{Define extents for buffers}
 \begin{lstlisting}
    // alpaka::Vec is a static array similar to std::array.
    // Dim is a compile-time constant, which is 2.
-   // Create a static array of size Dim.
-
     constexpr alpaka::Vec<Dim, Idx> numNodes{64, 64};
     constexpr alpaka::Vec<Dim, Idx> haloSize{2, 2};
     constexpr alpaka::Vec<Dim, Idx> extent = numNodes + haloSize;
@@ -240,29 +238,55 @@ using Idx = std::size_t; // Index type of the threads and buffers
 
 \textbf{Allocate memories at host and accelerator}
 \begin{lstlisting}
-    // Allocate memory for host-buffer
+    // Allocate memory for host-buffer. Creates alpaka::Buf.
     auto uBufHost = alpaka::allocBuf<double, Idx>(devHost, extent);
 
     // Allocate memory for accelerator buffer
     auto uBufAcc = alpaka::allocBuf<double, Idx>(devAcc, extent);
 \end{lstlisting}
+\textbf{Pass acc pointer uBufAcc to kernel and execute kernel}
+\begin{lstlisting}
+alpaka::exec<Acc>(queue, workDiv, initBufKernel, uBufAcc.data(), ...);
+\end{lstlisting}
 \end{frame}
 
 \begin{frame}[fragile]
-\frametitle{Allocated area at the memory}
+\frametitle{Aim: Finding the adress of a data and fill it with a specific value}
 \hspace{-0.4\baselineskip}
-\small
-Let's assume that 105 item with 3-byte each will be allocated to pass to the kernel. The pitch value (actually the row-pitch) depends on the GPU or CPU type.
+\textbf{Lets assume that the 2D data is a 15 rows x 7 columns matrix}
+\newline
 
 \begin{figure}
 \hspace{-1.2\baselineskip}
    \centering
-   \includegraphics[width=0.75\linewidth]{Screenshot from 2024-10-01 17-31-32.png}
+   \includegraphics[width=0.45\linewidth]{Screenshot from 2024-10-21 01-01-17.png}
+   \label{fig:enter-label}
+\end{figure}
+\hspace{0.1\baselineskip}
+\small
+\textbf{Assume that data-size is 3}
+\begin{figure}
+\hspace{-1.2\baselineskip}
+   \centering
+   \includegraphics[width=0.45\linewidth]{Screenshot from 2024-10-21 00-56-34.png}
+   \label{fig:enter-label}
+\end{figure}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Structure of allocated data at the memory}
+\hspace{-0.4\baselineskip}
+\textbf{To fill the acc data buffer at the kernel the allocated memory structure should be known.}
+\begin{figure}
+\hspace{-1.2\baselineskip}
+   \centering
+   \includegraphics[width=0.75\linewidth]{Screenshot from 2024-10-21 01-36-15.png}
    \label{fig:enter-label}
 \end{figure}
 \hspace{0.1\baselineskip}
 \begin{figure}
-\hspace{-1.2\baselineskip}
+\hspace{-1.1\baselineskip}
    \centering
    \includegraphics[width=0.75\linewidth]{Screenshot from 2024-10-01 17-30-50.png}
    \label{fig:enter-label}
