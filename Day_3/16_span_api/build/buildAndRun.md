@@ -4,7 +4,7 @@
 cmake ..
 
 ## choose accelerator(s)
-cmake .
+ccmake .
 
 Hint for LUMI:
 ```bash

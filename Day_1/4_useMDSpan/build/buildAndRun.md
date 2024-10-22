@@ -4,7 +4,7 @@
 cmake ..
 
 ## choose accelerator(s) 
-cmake .
+ccmake .
 
 ## build
 make -j
