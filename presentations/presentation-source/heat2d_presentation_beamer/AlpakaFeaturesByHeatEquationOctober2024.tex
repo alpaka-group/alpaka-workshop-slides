@@ -645,7 +645,7 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
 
 \subsection{All Solution Steps}
 \begin{frame}
-\frametitle{Heat Equation Solution}
+\frametitle{Complete Heat Equation Solution}
 \begin{itemize}
     \item \textbf{Initialization:}
     \begin{itemize}
@@ -655,9 +655,9 @@ r_{X}  & 1 - 2r_{X} - 2r_{Y}  & r_{X} \\
         \item Copy data from host to device buffer to pass to the kernel.
         \item Define parallelisation strategy (determine block size).
     \end{itemize}
-    \item \textbf{Simulation Loop:}
+    \item \textbf{Simulation Loop Over Time:}
     \begin{itemize}
-        \item \textbf{Step 1:} Execute \texttt{StencilKernel} to compute next values.
+        \item \textbf{Step 1:} Execute \texttt{StencilKernel} to calculate next heat values for 2D domain.
         \item \textbf{Step 2:} Apply boundary conditions using \texttt{BoundaryKernel}.
         \item \textbf{Step 3:} Swap buffers for the next iteration so that calculated  $u_{i,j}^{n+1}$ becomes the $u_{i,j}^{n}$ for the next step.
     \end{itemize}
@@ -825,20 +825,20 @@ using Acc = acc::AccGpuHipRt<Dim, Idx>;
  \begin{lstlisting}
 // get thread index on the grid
 auto gridThreadIdx = alpaka::getIdx<Grid, Threads>(acc);
-// get block index on the grid
-auto gridBlockIdx = alpaka::getIdx<Grid, Blocks>(acc);
  \end{lstlisting}
 \item The Accelerator gives access to alpaka’s shared memory (for threads inside the same block)
  \begin{lstlisting}
 // allocate a variable in block shared static memory
 auto& sdata = alpaka::declareSharedVar<double[T_SharedMemSize1D], __COUNTER__>(acc);
-// get pointer to the block shared dynamic memory
-auto* const sharedN = alpaka::getDynSharedMem<float>(acc);
  \end{lstlisting}
 \item Enables synchronization on the block level
  \begin{lstlisting}
 // synchronize all threads within the block
 alpaka::syncBlockThreads(acc);
+ \end{lstlisting}
+ \item Maps all device-side functions to their native counterparts
+ \begin{lstlisting}
+alpaka::sqrt(acc, val); // or atomics, create distribution
  \end{lstlisting}
 \end{itemize}
 \end{itemize}
@@ -859,7 +859,7 @@ alpaka::syncBlockThreads(acc);
  auto bufCpu = alpaka::allocBuf<float, Idx>(devCpu, extent);
  auto bufGpu = alpaka::allocBuf<float, Idx>(devGpu, extent);
  ....
- // Copy buffer from CPU to GPU - destination comes first
+ // Copy buffer from CPU to GPU. Notice: destination comes first!
  alpaka::memcpy(gpuQueue, bufGpu, bufCpu);
  // cuda way: cudaMemcpy(b_d, b_host, sizeof(float)*N, cudaMemcpyHostToDevice);
  \end{lstlisting}
@@ -873,32 +873,7 @@ alpaka::syncBlockThreads(acc);
     \end{frame}
 
 \subsection{Main accelerator operations}
-\begin{frame}[fragile]
-\frametitle{Kernel execution and copying results back}
-\begin{itemize}
 
-\item Create the queue
-\lstset{basicstyle=\ttfamily\scriptsize}
-\begin{lstlisting}
-// Create queue,
-// queue is needed for kernel execution and copies to/from accelerator
-    alpaka::Queue<Acc, alpaka::NonBlocking> queue{devAcc};
-\end{lstlisting}
-
-\item Execute the kernel using the queue, the workdiv and kernel arguments:
-\lstset{basicstyle=\ttfamily\scriptsize}
-\begin{lstlisting}
-    alpaka::exec<Acc>(queue, workDiv, initBufferKernel, uBufAcc.data(), pitchCurrAcc, dx, dy);
-\end{lstlisting}
-\item Copy the filled buffer back to the host
-\begin{lstlisting}
-     // Copy device -> host
-     // Since buffers know their corresponding devices (host or acc) memcopy does not need any device variable
-    alpaka::memcpy(queue, uBufHost, uBufAcc);
-    alpaka::wait(queue);
-\end{lstlisting}
-\end{itemize}
-\end{frame}
 
 
 %------------------------------------------------
@@ -931,6 +906,7 @@ alpaka::syncBlockThreads(acc);
 // Set Dim and Index type
 using Idx = uint32_t;
 using Dim2D = alpaka::DimInt<2u>; // 2 as a type
+// 2-element vectors
 alpaka::Vec<Dim2D, Idx> gridBlockExtent{M,N}; // 2D grid
 alpaka::Vec<Dim2D, Idx> blockThreadExtent{32,32}; // 2D block
 alpaka::Vec<Dim2D, Idx> elementExtentPerThread{1,1};
@@ -943,6 +919,8 @@ alpaka::WorkDivMembers<Dim2D, Idx> workdiv2D{gridBlockExtent,blockThreadExtent, 
 \end{figure}
 
 \end{frame}
+
+
 
 \subsection{Queue}
 
@@ -984,7 +962,7 @@ alpaka::exec<Acc>(computeQueue, workDiv_manual, stencilKernel...)
     \label{fig:enter-label}
 \end{figure}
 
-\item Copying and running synchronously
+\item Copying and processing data synchronously
 \begin{lstlisting}
 using QueueGpu = alpaka::Queue<AccGpu, alpaka::NonBlocking>;
 StencilKernel<sharedMemSize> stencilKernel;
@@ -992,8 +970,8 @@ auto queueGpu1 = QueueGpu{devGpu};
 auto queueGpu2 = QueueGpu{devGpu};
 alpaka::memcpy(queueGpu1, uCurrBufAcc, uBufHost);
 alpaka::wait(QueueGpu1);
+// Run 2 tasks in parallel: memcpy and exec
 alpaka::memcpy(queueGpu2, uCurrBufAcc2, uBufHost2);
-// Execute kernel using queue
 alpaka::exec<Acc>(queueGpu1, workDiv_manual, stencilKernel...)
 alpaka::wait(QueueGpu1);
 alpaka::wait(QueueGpu2);
@@ -1004,7 +982,7 @@ alpaka::wait(QueueGpu2);
 \begin{frame}[fragile]
 \frametitle{Queue Operations and Tasks}
 \begin{itemize}
-\item Device-side related operations  (kernels, memory operations) can be wrapped in tasks.
+\item Wrapping an operation as a \textbf{task} is possible.
 \begin{lstlisting}
 auto const taskRunKernel = alpaka::createTaskKernel<Acc>(workDiv, kernel, /* kernel args */);
 auto const taskMemcpy = alpaka::createTaskMemcpy<Acc>( uCurrBufAcc, uBufHost);
@@ -1067,6 +1045,36 @@ alpaka::wait(queueB, myEvent);
 \end{figure}
 \end{frame}
 
+
+
+\begin{frame}[fragile]
+\frametitle{Going over Kernel execution and copying data}
+\begin{itemize}
+
+\item Create the queue and buffer using device
+\lstset{basicstyle=\ttfamily\scriptsize}
+\begin{lstlisting}
+// Create queue,
+// queue is needed for kernel execution and copies to/from accelerator
+    alpaka::Queue<Acc, alpaka::NonBlocking> queue{devAcc};
+    auto uBufAcc = alpaka::allocBuf<float, Idx>(devAcc, extent);
+\end{lstlisting}
+
+\item Execute the kernel using the queue, the workdiv and kernel arguments:
+\lstset{basicstyle=\ttfamily\scriptsize}
+\begin{lstlisting}
+    alpaka::exec<Acc>(queue, workDiv, initBufferKernel, uBufAcc.data(), pitchCurrAcc, dx, dy);
+\end{lstlisting}
+\item Copy the filled buffer back to the host
+\begin{lstlisting}
+     // Copy device -> host
+     // Since buffers know their corresponding devices (host or acc) memcopy does not need any device variable
+    alpaka::memcpy(queue, uBufHost, uBufAcc);
+    alpaka::wait(queue);
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+
 \section{Optimization of Solution}
 
 \begin{frame}
@@ -1075,7 +1083,7 @@ alpaka::wait(queueB, myEvent);
       \Huge \textbf{alpaka Usability and Optimization Features}
   \end{center}
 \begin{enumerate}
- \item Use alpaka \textbf{mdspan} to set, get, pass buffers easily (Hands-On 5)
+ \item Use alpaka \textbf{mdspan} to set, get, pass data easily (Hands-On 5)
  \item Use \textbf{Domain Decomposition}: Divide the domain into \textbf{chunks} (Hands-On 6)
  \item Use \textbf{2 asynch queues} for performance increase (Hands-On 7)
  \item Use \textbf{shared memory} for performance increase (Hands-On 8)
@@ -1134,20 +1142,19 @@ cmake -Dalpaka_USE_MDSPAN=FETCH ..
      } };
  \end{lstlisting}
 \begin{lstlisting}
-
+// Update the kernel: Use mdspan instead of pointer+pitch
 struct StencilKernel
 {
-    template<typename TAcc, typename TDim, typename TIdx, typename TMdSpan>
+    template<typename TAcc, typename TDim, typename TIdx>
     ALPAKA_FN_ACC auto operator()(
         TAcc const& acc,
-        TMdSpan uCurrBuf,
-        TMdSpan uNextBuf,
-        alpaka::Vec<TDim, TIdx> const chunkSize,
-        double const dx,
-        double const dy,
-        double const dt) const -> void
-    { ....
-    } };
+        double const* const uCurrBuf, double* const uNextBuf,
+        alpaka::Vec<TDim, TIdx> const& pitchCurr,
+        alpaka::Vec<TDim, TIdx> const& pitchNext,
+        alpaka::Vec<TDim, TIdx> const& haloSize,
+        double const dx, double const dy, double const dt) const -> void
+        {  .....
+        }};
 
 \end{lstlisting}
 \end{frame}
