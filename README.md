@@ -84,9 +84,9 @@
 
 ## 8. Usability and optimization
 - Hands-on 5: Using alpaka mdspan for easier indexing
-- Hands-on 6: Domain Decomposition, chunking or tiling
-- Hands-on 7: Using multiple Queues to increase performance. Explore overlap between computation and data transfer
-- Hands-on 8: Using Shared Memory for chunksExplore overlap between computation and data transfer
+- Hands-on 6: Domain Decomposition, chunking or tiling (Day 2)
+- Hands-on 7: Using multiple Queues to increase performance. Explore overlap between computation and data transfer (Day 2)
+- Hands-on 8: Using Shared Memory for chunksExplore overlap between computation and data transfer (Day 2)
 
 ## Timing Runs
 - Measure the performance of your kernels and analyze the timing with and without shared memory
