@@ -111,12 +111,30 @@ make -j
 ./vectorAdd
 
 cd ~/src
-
+#
+# HANDS-ON Exercises and Presentations
+#
 # Clone the workshop repository from the `oct2024_workshop` branch 
 git clone -b oct2024_workshop --single-branch https://github.com/alpaka-group/alpaka-workshop-slides.git
 
-# File Transfer and Sharing methods if needed
+# Editing and Building HANDS-ON Exercises 
+# First exercise is at directory alpaka-workshop-slides/Day_1/0_helloIndex
+# cd to source files directory
+cd alpaka-workshop-slides/Day_1/0_helloIndex/src
 
+# edit the source files
+vi InitializeBufferKernel.hpp
+
+# cd to build in the directory alpaka-workshop-slides/Day_1/0_helloIndex/build
+cd ../build
+
+# Please follow the instructions in alpaka-workshop-slides/Day_1/0_helloIndex/build/buildAndRun.md 
+vi buildAndRun.md
+
+
+# Other info
+# File Transfer and Sharing methods if needed
+#
 # 1. Using SFTP for File Transfer
 # From GNU/Linux terminal or Windows PowerCell
 sftp your_lumi_username@lumi.csc.fi
