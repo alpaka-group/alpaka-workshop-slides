@@ -5,6 +5,12 @@
 
 import json
 
+# This is a workaround for LUMI, otherwise this will not work on non-GPU nodes.
+# Would normally be specified in a job script or environment, but let's just
+# hardcode this here for the purpose of this workshop :)
+import os
+os.environ["MPICH_GPU_SUPPORT_ENABLED"] = "0"
+
 from mpi4py import MPI
 
 import numpy as np
@@ -72,6 +78,7 @@ if __name__ == "__main__":
             # Hint: The Python syntax for one-dimensional slices is:
             # `pos[start:end]` where the start is inclusive and the end exclusive.
             # Use `comm.rank` to find the local rank index.
+            # Later, try reading the output using `bpls -D <file.bp5>`.
             pos[()] = local_data
 
         # optionally: flush now to clear buffers

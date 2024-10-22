@@ -62,6 +62,11 @@ public:
         using value_t = alpaka::Elem<HostBuffer>;
 
         openPMD::Iteration current_iteration = m_series.writeIterations()[step];
+        // Time is given in terms of nanoseconds
+        current_iteration.setTimeUnitSI(10e-9);
+        // Let's say, homogeneously 50 nanoseconds per step
+        current_iteration.setTime(step * 50.0);
+
         openPMD::Mesh image = current_iteration.meshes["heat"];
 
         image.setAxisLabels({"x", "y"});
@@ -82,7 +87,8 @@ public:
 
         auto logical_extents = alpaka::getExtents(accBuffer);
 
-        image.resetDataset({openPMD::determineDatatype<value_t>(), asOpenPMDExtent(logical_extents)});
+        openPMD::Dataset dataset_definition{openPMD::determineDatatype<value_t>(), asOpenPMDExtent(logical_extents)};
+        image.resetDataset(dataset_definition);
 
         alpaka::memcpy(dumpQueue, hostBuffer, accBuffer);
         alpaka::wait(dumpQueue);

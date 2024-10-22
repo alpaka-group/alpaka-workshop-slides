@@ -5,6 +5,12 @@
 
 import json
 
+# This is a workaround for LUMI, otherwise this will not work on non-GPU nodes.
+# Would normally be specified in a job script or environment, but let's just
+# hardcode this here for the purpose of this workshop :)
+import os
+os.environ["MPICH_GPU_SUPPORT_ENABLED"] = "0"
+
 from mpi4py import MPI
 
 import numpy as np
@@ -36,7 +42,7 @@ import openpmd_api as io
 
 # Runtime configuration. Here written as a JSON object and dumped via `json.dumps()`.
 # https://openpmd-api.readthedocs.io/en/0.16.0/details/backendconfig.html
-config = {"backend": "json", "adios2": {"engine": {}, "dataset": {}}, "hdf5": {}}
+config = {"backend": "adios2", "adios2": {"engine": {}, "dataset": {}}, "hdf5": {}}
 # pass-through for ADIOS2 engine parameters
 # https://adios2.readthedocs.io/en/latest/engines/engines.html
 config["adios2"]["engine"] = {"parameters": {"Threads": "4"}}
