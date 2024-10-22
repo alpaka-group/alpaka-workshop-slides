@@ -89,7 +89,8 @@ cd vectorAdd
 mkdir build && cd build
 
 # Open the CMake configuration interface to customize the build process
-cmake ..
+cmake -Dalpaka_DIR=/project/$PROJID/$USER/local/lib64/cmake/alpaka ..
+
 
 # Inside the CMake configration interface called "ccmake", activate the accelerators of interest 
 # For example, enable HIP support by turning on `alpaka_ACC_GPU_HIP_ENABLE`.
