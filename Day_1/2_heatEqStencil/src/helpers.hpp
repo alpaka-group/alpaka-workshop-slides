@@ -20,6 +20,10 @@ using const_match = std::conditional_t<std::is_const_v<T>, U const, U>;
 template<typename T, typename TDim, typename TIdx>
 ALPAKA_FN_ACC T* getElementPtr(T* ptr, alpaka::Vec<TDim, TIdx> const& idx, alpaka::Vec<TDim, TIdx> const& pitch)
 {
-    return reinterpret_cast<T*>(
-        reinterpret_cast<const_match<T, std::byte>*>(ptr) + idx[0] * pitch[0] + idx[1] * pitch[1]);
+    // Solution assuming pitch[0] is a multiple of sizeof(T) or pitch[1].
+    // Which is the usual case with standard build-in types like float, double, int, long int...
+    return ptr + (idx[0] * pitch[0] + idx[1] * pitch[1])/sizeof(T);
+
+    // If built-in data types are not used.
+    // return reinterpret_cast<T*>(reinterpret_cast<const_match<T, std::byte>*>(ptr) + idx[0] * pitch[0] + idx[1] * pitch[1]);
 }
