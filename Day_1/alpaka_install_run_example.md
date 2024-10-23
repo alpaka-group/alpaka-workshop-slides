@@ -101,9 +101,10 @@ cmake -Dalpaka_DIR=/project/$PROJID/$USER/local/lib64/cmake/alpaka ..
 ccmake .
 
 # As an alternative to setting cmake param at "ccmake" cmake command can be used as well: 
-#    cmake -DCMAKE_BUILD_TYPE=Release \
+#    cmake -Dalpaka_DIR=/project/$PROJID/$USER/local/lib64/cmake/alpaka \
+#          -DCMAKE_BUILD_TYPE=Release \
 #          -Dalpaka_ACC_CPU_B_SEQ_T_SEQ_ENABLE=ON \
-#          -Dalpaka_ACC_GPU_HIP_ENABLE=ON
+#          -Dalpaka_ACC_GPU_HIP_ENABLE=ON \
 #          -Dalpaka_USE_MDSPAN=FETCH ..
 
 # After configuration, exit the CMake interface and proceed to build the project.
