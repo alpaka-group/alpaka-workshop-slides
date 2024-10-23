@@ -47,12 +47,13 @@ struct StencilKernel
         double const rX = dt / (dx * dx);
         double const rY = dt / (dy * dy);
 
+        using Vec = alpaka::Vec<TDim, TIdx>;
         // offset for halo, as we only want to go over core cells
         auto globalIdx = gridThreadIdx + haloSize;
-        auto const right = globalIdx + alpaka::Vec{0, 1};
-        auto const left = globalIdx + alpaka::Vec{0, -1};
-        auto const up = globalIdx + alpaka::Vec{-1, 0};
-        auto const down = globalIdx + alpaka::Vec{1, 0};
+        auto const right = globalIdx + Vec{0, 1};
+        auto const left = globalIdx + Vec{0, -1};
+        auto const up = globalIdx + Vec{-1, 0};
+        auto const down = globalIdx + Vec{1, 0};
         auto elem = getElementPtr(uNextBuf, globalIdx, pitchNext);
 
         *elem = *getElementPtr(uCurrBuf, globalIdx, pitchCurr) * (1.0 - 2.0 * rX - 2.0 * rY)
