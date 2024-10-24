@@ -1091,26 +1091,42 @@ alpaka::wait(queueB, myEvent);
 \end{enumerate}
     \end{frame}
 
+
 \subsection{Hands on 5: MdSpan}
 \begin{frame}[fragile]
 \small
-\frametitle{alpaka::experimental::mdspan}
+\frametitle{MdSpan for multi-dimensional data}
 \textbf{Mdspan a multi-dimensional and non-owning view}
 \begin{itemize}
 \item Part of C++23 standard. Can be used with C++17.
-\item Consists pointer, pitch and data size
+\item Consists pointer, layout policy (pitch or stride info), data type, access type
 \item Has member functions to get/set data and to get extents
+\item Does not change the data, it creates a method to access to the data
  \end{itemize}
- \textbf{Mdspan Installation}
- \begin{itemize}
+ \textbf{mdspan as a type}
+ \begin{lstlisting}
+ // std::experimental::mdspan<ElementType, Extents, LayoutPolicy, AccessorPolicy>
+ int data[12] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+  std::experimental::mdspan<int, std::extents<3, 4>> spanA(data);
+  std::experimental::mdspan<int, std::extents<2, 6>> spanB(data);
+   assert(spanA(2, 3) == span2(1, 5)); //  true
+ \end{lstlisting}
+ \end{frame}
+
+\begin{frame}[fragile]
+\small
+\frametitle{alpaka::experimental::mdspan in alpaka}
+\begin{itemize}
+\item \textbf{Mdspan Installation}
+\begin{itemize}
 \item Set $alpaka\_USE\_MDSPAN$ cmake variable to $FETCH$ while installing alpaka
 \item Alternatively, set $alpaka\_USE\_MDSPAN$ cmake variable to $FETCH$ while configuring example if it is not already set while installation
 \begin{lstlisting}
 // in build directory
 cmake -Dalpaka_USE_MDSPAN=FETCH ..
- \end{lstlisting}
+\end{lstlisting}
 \end{itemize}
-\textbf{Passing mdspan to kernel}
+\item \textbf{Passing mdspan to kernel}
 \lstset{basicstyle=\ttfamily\scriptsize}
 \begin{lstlisting}
  // Host code: Allocate device memory
@@ -1120,7 +1136,8 @@ cmake -Dalpaka_USE_MDSPAN=FETCH ..
  // Execute the kernel
  alpaka::exec<Acc>(queue, workDiv, kernel, mdDevA, mdDevB, mdDevC);
  \end{lstlisting}
- \end{frame}
+ \end{itemize}
+\end{frame}
 %------------------------------------------------
 \begin{frame} [fragile]
 \frametitle{Kernel using mdspan instead of data pointer and pitch}
