@@ -1,0 +1,293 @@
+%
+% Beamer LaTeX class theme according to HZDR corporate design
+%
+% (C) 2020--\today Alexander Grahn, HZDR, Institut fuer Ressourcenökologie
+%
+% Version 20210305
+%
+
+\usetheme{default}
+\useinnertheme{rectangles}
+\RequirePackage{atbegshi,calc}
+\RequirePackage{bookmark}
+\RequirePackage{xkeyval}
+\graphicspath{%
+  % directory tree in the version provided in
+  % share/HZDRzentral/Vorlagen/LaTeX
+  {beamerthemehzdr/logos/hzdr/}%
+  {beamerthemehzdr/logos/ddconcept/}%
+  {beamerthemehzdr/logos/hif/}%
+  {beamerthemehzdr/logos/tufg/}%
+  % directory tree in the version provided in
+  % https://gitlab.hzdr.de/hzdr/latex-templates
+  {logos/hzdr/}%
+  {logos/ddconcept/}%
+  {logos/hif/}%
+  {logos/tufg/}%
+}
+
+\DeclareOptionX{hif}{\def\hif{}\def\noddclogo{}}
+\DeclareOptionX{noddclogo}{\def\noddclogo{}}
+\DeclareOptionX{nonavigation}{\def\nonavigation{}}
+\DeclareOptionX{titlepageflushleft}{\def\titlepageflushleft{}}
+\DeclareOptionX{partpageflushleft}{\def\titlepageflushleft{}}
+\DeclareOptionX*{}\ProcessOptionsX*\relax %allow anything as an option
+
+\iflanguage{ngerman}{%
+  \RequirePackage[useregional=numeric,datesep={.\,},style=dmyyyy]{datetime2}
+}{
+  \RequirePackage[useregional=numeric]{datetime2}
+}  
+
+% official hzdr/helmholtz colours:
+\definecolor{hzdr-blue}{cmyk}{1,0.5,0,0.2}
+\definecolor{hzdr-orange}{cmyk}{0,0.65,0.9,0}
+\definecolor{hzdr-gray1}{cmyk}{0,0,0,0.8}
+\definecolor{hzdr-gray2}{cmyk}{0,0,0,0.5}
+\definecolor{hzdr-gray3}{cmyk}{0,0,0,0.3}
+\colorlet{hzdr-blue-80}{hzdr-blue!80!white}
+\colorlet{hzdr-blue-60}{hzdr-blue!60!white}
+\colorlet{hzdr-blue-40}{hzdr-blue!40!white}
+\colorlet{hzdr-blue-20}{hzdr-blue!20!white}
+\colorlet{hzdr-orange-80}{hzdr-orange!80!white}
+\colorlet{hzdr-orange-60}{hzdr-orange!60!white}
+\colorlet{hzdr-orange-40}{hzdr-orange!40!white}
+\colorlet{hzdr-orange-20}{hzdr-orange!20!white}
+\definecolor{hzdr-gray-80}{cmyk}{0,0,0,0.8}
+\definecolor{hzdr-gray-50}{cmyk}{0,0,0,0.5}
+\definecolor{hzdr-gray-30}{cmyk}{0,0,0,0.3}
+
+\setbeamercolor{structure}{fg=hzdr-blue}
+\setbeamercolor{structure1}{fg=hzdr-blue}
+\setbeamercolor{structure2}{fg=hzdr-blue}
+
+%beamer blocks
+\usecolortheme{orchid} 
+\setbeamercolor{block title}{use=structure,fg=white,bg=structure.fg}
+
+%navigation symbols/full-screen
+\def\insertfullscreensymbol{%
+  \Acrobatmenu{FullScreen}{\begin{pgfpicture}{6bp}{-2.5bp}{14bp}{6.5bp}
+  \color{hzdr-blue-40}%  
+  \pgfpathrectangle{\pgfpoint{7.5pt}{0pt}}{\pgfpoint{5pt}{4pt}}%
+  \pgfpathrectangle{\pgfpoint{8.5pt}{1pt}}{\pgfpoint{3pt}{2pt}}%
+  \pgfusepathqstroke%
+  \end{pgfpicture}}
+}
+\def\insertnavsymbolbwd{%
+  \ifnum\c@page>\@ne
+    \hyperlinkslideprev{%
+    \begin{pgfpicture}{-1bp}{-2.5bp}{7bp}{6.5bp}
+    \color{hzdr-blue-40}%  
+    \pgfpathqmoveto{4bp}{0.5bp}%
+    \pgfpathqlineto{2bp}{2bp}%
+    \pgfpathqlineto{4bp}{3.5bp}%
+    \pgfusepathqfill%
+    \end{pgfpicture}}%
+  \else%
+    \begin{pgfpicture}{-1bp}{-2.5bp}{7bp}{6.5bp}
+    \color{hzdr-gray3!50}%  
+    \pgfpathqmoveto{4bp}{0.5bp}%
+    \pgfpathqlineto{2bp}{2bp}%
+    \pgfpathqlineto{4bp}{3.5bp}%
+    \pgfusepathqfill%
+    \end{pgfpicture}%
+  \fi%
+}
+\def\insertnavsymbolfwd{%
+  \ifnum\c@page<\beamer@endpageofdocument
+    \hyperlinkslidenext{%
+    \reflectbox{\begin{pgfpicture}{-1bp}{-2.5bp}{7bp}{6.5bp}
+    \color{hzdr-blue-40}%  
+    \pgfpathqmoveto{4bp}{0.5bp}%
+    \pgfpathqlineto{2bp}{2bp}%
+    \pgfpathqlineto{4bp}{3.5bp}%
+    \pgfusepathqfill%
+    \end{pgfpicture}}}%
+  \else%
+    \reflectbox{\begin{pgfpicture}{-1bp}{-2.5bp}{7bp}{6.5bp}
+    \color{hzdr-gray3!50}%  
+    \pgfpathqmoveto{4bp}{0.5bp}%
+    \pgfpathqlineto{2bp}{2bp}%
+    \pgfpathqlineto{4bp}{3.5bp}%
+    \pgfusepathqfill%
+    \end{pgfpicture}}%
+  \fi%
+}
+
+% slide background
+\AtBeginShipout{%
+  \AtBeginShipoutUpperLeft{%
+    \unitlength=\paperheight%
+    % shared by all slides
+    \put(0,-0.042){\color{hzdr-orange}{\rule{0.042\paperheight}{0.042\paperheight}}}
+    \ifdefined\nonavigation\else%
+      \put(0,-1){\makebox[\paperwidth]{\color{hzdr-blue-40}\insertnavsymbolbwd\,\insertfullscreensymbol\hfill\insertnavsymbolfwd}}%
+    \fi%  
+    % title page
+    \ifcsname titlepage.\the\c@page\endcsname%
+      \put(0.042,-0.958){\color{hzdr-blue}{\rule{\paperwidth-0.084\paperheight}{0.7522\paperheight}}}%
+      % logos
+      \put(0.1,-0.16955){\makebox[\paperwidth-0.16\paperheight][r]{%
+        \ifdefined\hif%
+          \includegraphics[height=0.106\paperheight]{hzdr-logo-unterzeile-hoch-pos-4c}\logoseptop%
+          \includegraphics[height=0.106\paperheight]{tufg-pos-4c}\logoseptop%
+        \fi%
+        \@partnerlogotop\hfill%
+        \ifdefined\hif%
+          \iflanguage{ngerman}{%
+            \includegraphics[height=0.106\paperheight]{hif-logo-unterzeile-hoch-pos-4c}%
+          }{%
+            \includegraphics[height=0.106\paperheight]{hif-logo-unterzeile-hoch-en-pos-4c}%
+          }%
+        \else%
+          \ifdefined\noddclogo\else\includegraphics[height=0.106\paperheight]{ddc-orig}\logoseptop\fi%
+          \includegraphics[height=0.106\paperheight]{hzdr-logo-unterzeile-hoch-pos-4c}%
+        \fi%  
+      }}%
+    % part page
+    \else\ifcsname partpage.\the\c@page\endcsname%
+      \put(0.042,-0.958){\color{hzdr-blue}{\rule{\paperwidth-0.084\paperheight}{0.916\paperheight}}}%
+      \put(0.1,-0.16955){\makebox[\paperwidth-0.16\paperheight][r]{%
+        \ifdefined\hif%
+          \ifdefined\hif%
+            \includegraphics[height=0.106\paperheight]{hzdr-logo-unterzeile-hoch-neg-4c}\logoseptop%
+            \includegraphics[height=0.106\paperheight]{tufg-neg-4c}\hfill%
+          \fi%
+          \iflanguage{ngerman}{%
+            \includegraphics[height=0.106\paperheight]{hif-logo-unterzeile-hoch-neg-4c}%
+          }{%
+            \includegraphics[height=0.106\paperheight]{hif-logo-unterzeile-hoch-en-neg-4c}%
+          }%
+        \else%
+          \ifdefined\noddclogo\else\includegraphics[height=0.106\paperheight]{ddc-weisse-schrift}\logoseptop\fi%
+          \includegraphics[height=0.106\paperheight]{hzdr-logo-unterzeile-hoch-neg-4c}%
+        \fi%
+      }}%
+    % normal slides
+    \else%
+      \begin{picture}(0,0)\unitlength=\paperheight%
+        \put(0.042,-0.9441){\makebox[\paperwidth-0.084\paperheight][r]{%
+          \raisebox{-0.5\height}{\color{hzdr-blue}\tiny\textbf{\insertframenumber/\inserttotalframenumber}\quad%
+          \insertshorttitle{}
+          $\boldsymbol{\cdot}$
+          \insertshortdate}%
+          \hfill%
+          \raisebox{-0.5\height}[0pt][0pt]{\@partnerlogobot}%
+          \ifdefined\hif%
+            \raisebox{-0.5\height}{\includegraphics[height=0.0278\paperheight]{hif-logo-pos-4c}}%
+          \else%
+            \ifdefined\noddclogo\else\raisebox{-0.5\height}[0pt][0pt]{\includegraphics[height=0.04618\paperheight]{ddc-orig}}\logosepbot\fi%
+            \raisebox{-0.5\height}{\includegraphics[height=0.0278\paperheight]{hzdr-logo-pos-4c}}%
+          \fi%
+        }}%
+      \end{picture}%
+    \fi\fi%
+  }%
+}
+\setbeamertemplate{navigation symbols}{}
+\setbeamercolor{background canvas}{bg=}
+
+% content of special slides (title page, part page)
+\setbeamertemplate{background}{%
+  % front matter (title page)
+  \begin{picture}(0,0)
+    \unitlength=\paperheight%
+    \ifcsname titlepage.\the\c@page\endcsname%
+      % front matter
+      \put(0.1,-0.2058){\parbox[t][0.7522\paperheight][c]{\paperwidth-0.2\paperheight}{%
+        \ifdefined\titlepageflushleft\begin{flushleft}\else\begin{centering}\fi%
+        \vbox to 0.7522\paperheight {%
+        \vss%
+        \vss%
+        \usebeamercolor[fg]{title page}%
+        {\usebeamerfont{title}\inserttitle\par}%
+        \ifx\insertsubtitle\@empty\else%
+          \vskip0.5em%
+          {\usebeamerfont{subtitle}\insertsubtitle\par}%
+        \fi%
+        \ifx\insertauthor\@empty\else%
+          \vskip1em%
+          {\usebeamerfont{author}\insertauthor\par}%
+        \fi%
+        \ifx\insertinstitute\@empty\else%
+          \ifx\insertauthor\@empty%
+            \vskip1em%
+          \else%
+            \vskip0.5em%
+          \fi%  
+          {\usebeamerfont{institute}\itshape\insertinstitute\par}%
+        \fi%
+        \vskip1em%
+        {\usebeamerfont{date}\insertdate}%
+        \vss%
+        \vss%
+        \vss%
+        }%
+        \ifdefined\titlepageflushleft\end{flushleft}\else\end{centering}\fi%
+      }}%
+    \else\ifcsname partpage.\the\c@page\endcsname%
+      \put(0.1,-0.042){\parbox[t][0.916\paperheight][c]{\paperwidth-0.2\paperheight}{%
+        \ifdefined\partpageflushleft\begin{flushleft}\else\begin{centering}\fi%
+        \vbox to 0.916\paperheight {%
+        \vss%
+        \vss%
+        \usebeamercolor[fg]{part page}%
+        {\usebeamerfont{part name}\partname~\insertromanpartnumber\par}
+        \vskip2em%
+          {\usebeamerfont{part title}\begin{NoHyper}\insertpart\end{NoHyper}}
+        \vss%
+        \vss%
+        \vss%
+        }%
+        \ifdefined\partpageflushleft\end{flushleft}\else\end{centering}\fi%
+      }}%
+    \fi\fi%  
+  \end{picture}%
+}
+
+\setbeamertemplate{title page}{\global\@namedef{titlepage.\the\c@page}{}}%
+\setbeamertemplate{part page}{\global\@namedef{partpage.\the\c@page}{}}%
+
+\setbeamercolor{part page}{fg=white}
+\setbeamercolor{title page}{fg=white}
+
+% font defaults
+\setbeamerfont{title}{size=\Large,series=\bfseries}
+\setbeamerfont{subtitle}{size=\large,series=\mdseries}
+\setbeamerfont{part title}{size=\LARGE,series=\bfseries}
+\setbeamerfont{part name}{size=\Large,series=\mdseries}
+\setbeamerfont{frametitle}{size=\Large,series=\bfseries}
+\setbeamerfont{framesubtitle}{size=\large,series=\mdseries}
+
+% user command for adding logos
+\def\partnerlogo#1{%
+  \g@addto@macro\@partnerlogotop{\resizebox{!}{0.106\paperheight}{\raisebox{\depth}{#1}}\logoseptop}%
+  \g@addto@macro\@partnerlogobot{\resizebox{!}{0.04618\paperheight}{\raisebox{\depth}{#1}}\logosepbot}%
+}%
+\def\@partnerlogotop{}
+\def\@partnerlogobot{}
+% separators (space) for logos
+\def\logoseptop{\hspace{0.04\paperheight}} % title/part slides
+\def\logosepbot{\hspace{0.02\paperheight}} % normal slides
+ 
+\let\orig@insertcontinuationcountroman\insertcontinuationcountroman
+\def\insertcontinuationcountroman{(\orig@insertcontinuationcountroman)}
+\defbeamertemplate*{frametitle}{bookmarked}{%bookmarks added by default
+  \usebeamerfont{frametitle}\insertframetitle\par%
+  \usebeamerfont{framesubtitle}\insertframesubtitle\par%
+  \only<1>{%
+    \bookmark[rellevel=1,keeplevel,page=\the\c@page]{%
+    \beamer@shortframetitle\space\insertframesubtitle%
+	  \ifnum\beamer@autobreakcount>\z@\space\insertcontinuationcountroman\fi}%
+  }%
+}
+\defbeamertemplate{frametitle}{nobookmark}{%
+  \usebeamerfont{frametitle}\insertframetitle\par%
+  \usebeamerfont{framesubtitle}\insertframesubtitle\par%
+  \bfseries\Large\insertframetitle\par\mdseries\large\insertframesubtitle\par%
+}
+\def\noautobookmark{\setbeamertemplate{frametitle}[nobookmark]}
+\def\autobookmark{\setbeamertemplate{frametitle}[bookmarked]}
+
+\setbeamersize{text margin left=0.053333\paperheight,text margin right=0.053333\paperheight}
