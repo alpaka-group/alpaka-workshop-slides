@@ -1,0 +1,63 @@
+# PIConGPU usage hands-on
+
+Please refer to the slides. This is just for quick copy past of commands.
+
+## LUMI access
+
+Project accounting:
+https://my.lumi-supercomputer.eu/
+
+SSH-keys:
+```bash
+ssh-keygen -t ed25519 -f /home/username/.ssh/id_juwels_ed25519
+```
+https://mms.myaccessid.org/profile/
+
+login via ssh:
+````bash
+ssh -i /.ssh/id_lumi_ed25519 your_username@lumi.csc.fi
+```
+
+web access:
+http://www.lumi.csc.fi/
+
+## workshop project on LUMI
+`project_465001310`
+
+create:
+```bash
+cd /projappl/project_465001310
+mkdir $(whoami)
+
+cd /scratch/project_465001310
+mkdir $(whoami)
+```
+
+## PIConGPU first example
+
+our main documentation:
+https://picongpu.readthedocs.io/
+
+# get code:
+````bash
+cd $HOME/
+mkdir src
+cd src
+git clone https://github.com/ComputationalRadiationPhysics/picongpu.git
+```
+
+copy a LUMI profile:
+```bash
+cp picongpu/etc/picongpu/lumi-eurohpc/lumi-G_hipcc_picongpu.profile.example /projappl/project_465001310/$(whoami)/lumi-G_hipcc_picongpu.profile
+```
+
+adjust:
+        - [line 8] `export MY_MAILNOTIFY="ALL"`
+        - [line 9] `export MY\_MAIL="your.mail@server.gov"`
+        - [line 16] `export PROJID=project_465001310`
+        - [line 17] `export PROJECT_DIR=/projappl/$PROJID/`
+        - [line 18] `export SCRATCH=/scratch/$PROJID/`
+        - [line 27] `export EDITOR="emacs -nw"`
+        - [line 72] `export PIC_LIBS=$PROJECT_DIR/workshop_software/local`
+        - [line 81] `export PICSRC=$HOME/src/picongpu`
+
