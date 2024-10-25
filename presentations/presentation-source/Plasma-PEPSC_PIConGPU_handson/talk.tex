@@ -275,12 +275,12 @@
 \begin{itemize}
     \item download the PIConGPU source code:
     \begin{itemize}
-        \item into project directory
-        \terminal{\# option 1 \newline 
-        cd /projappl/project\_465001310/\$(whoami)}
-        \item or in home directory
-        \terminal{\# option 2 \newline
-        cd \$HOME/ \newline
+%        \item into project directory
+%        \terminal{\# option 1 \newline 
+%        cd /projappl/project\_465001310/\$(whoami)}
+        %\item or 
+        in home directory
+        \terminal{cd \$HOME/ \newline
         mkdir src \newline
         cd src}
     \end{itemize}
@@ -295,7 +295,7 @@
 
 \begin{itemize}
     \item copy default setup file:
-    \terminal{cp picongpu/etc/picongpu/lumi-eurohpc/lumi-G\_hipcc\_picongpu.profile.example /projappl/project\_465001310/\$(whoami)/lumi-G\_hipcc\_picongpu.profile}
+    \terminal{cp picongpu/etc/picongpu/lumi-eurohpc/lumi-G\_hipcc\_picongpu.profile.example \$HOME/lumi-G\_hipcc\_picongpu.profile}
 
     \item either use your editor of choice in the terminal (vim, emacs, nano) or use the web interface 
     \item adjust the following lines:
@@ -307,8 +307,9 @@
         \item[18] \texttt{export SCRATCH=/scratch/\$PROJID/}
         \item[27] \texttt{export EDITOR="emacs -nw"}
         \item[72] \texttt{export PIC\_LIBS=\$PROJECT\_DIR/workshop\_software/local}
-        \item[81] \texttt{export PICSRC=\$PROJECT\_DIR/\$(whoami)/picongpu}
+        \item[81] \texttt{export PICSRC=\$HOME/src/picongpu}
     \end{enumerate}
+\item \terminal{source \$HOME/lumi-G\_hipcc\_picongpu.profile}
     
 \end{itemize}
 
@@ -319,9 +320,11 @@
 
 \begin{frame}[t,fragile]{Setting up PIConGPU on LUMI}{(3) Create simulation setup}
     \terminal{%
+        cd \$HOME \\
         mkdir -p picInputs\\
         cd picInputs\\
-        pic-create LaserWakefield LWFA
+        pic-create LaserWakefield LWFA \\
+        cd LWFA
     }
 \begin{itemize}
     \item ...
@@ -341,7 +344,7 @@
     \item just to follow the workflow, we will adjust \textbf{one compile-time} parameter
     \item compile-time parameters are in \texttt{include/picongpu/param}
     \item let's see where the parameter files are:
-    \terminal{cd LWFA/include/picongpu/param \\
+    \terminal{cd include/picongpu/param \\
     ls -l}
     \item let's edit the laser configuration
     \terminal{vim incidentField.param}
@@ -362,7 +365,8 @@
     \item just to follow the workflow, we will adjust \textbf{one run-time} parameter
     \item run-time parameters are in \texttt{etc/picongpu/*.cfg}
     \item let's see where the parameter files are:
-    \terminal{cd - \\ cd LWFA/etc/picongpu/ \\
+    \terminal{cd \$HOME/picInputs/LWFA \\ 
+    cd etc/picongpu/ \\
     ls -l}
     \item let's edit the \texttt{4.cfg}
     \terminal{vim 4.cfg}
@@ -391,7 +395,9 @@ TBG_openPMD="--openPMD.period 100 \\
 
 \begin{itemize}
     \item go back to the root of your LWFA example 
-    \terminal{cd -}
+    \terminal{cd \$HOME/picInputs/LWFA}
+    \item get compute resources for compiling:
+    \terminal{getDevice}
     \item compile your setup
     \terminal{pic-build }
     \item better: 
@@ -445,6 +451,7 @@ TBG_openPMD="--openPMD.period 100 \\
 
 \begin{frame}[t,fragile]{Setting up PIConGPU on LUMI}{(6) Run setup}
 \begin{itemize}
+    \item \textcolor{red}{\textbf{go back to LUMI head node - do not run \texttt{tbg} from a compute node}}
     \item submit job using \texttt{tbg} (assuming you changed the \texttt{standard-g.tpl})
     \terminal{%
         tbg -s -t -c etc/picongpu/4.cfg \$SCRATCH/\$(whoami)/01\_LWFA
