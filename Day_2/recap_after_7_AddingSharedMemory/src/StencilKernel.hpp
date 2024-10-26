@@ -40,6 +40,12 @@ struct StencilKernel
         auto& sdata = alpaka::declareSharedVar<double[T_SharedMemSize1D], __COUNTER__>(acc);
         auto smemSize2D = chunkSize + haloSize + haloSize;
 
+        // use mdspan for easier set and access the 1D shared memory
+        auto sdataMdSpan = std::experimental::mdspan<double, std::experimental::dextents<size_t, 2>>(
+            sdata,
+            smemSize2D[0],
+            smemSize2D[1]);
+
         // Get indexes
         auto const gridBlockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc);
         auto const blockThreadIdx = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc);
@@ -57,9 +63,8 @@ struct StencilKernel
             for(auto j = blockThreadIdx[1]; j < smemSize2D[1]; j += blockThreadExtent[1])
             {
                 auto localIdx2D = alpaka::Vec(i, j);
-                auto localIdx1D = alpaka::mapIdx<1>(localIdx2D, smemSize2D)[0u];
                 auto globalIdx = localIdx2D + blockStartThreadIdx;
-                sdata[localIdx1D] = uCurrBuf(globalIdx[0], globalIdx[1]);
+                sdataMdSpan(localIdx2D[0], localIdx2D[1]) = uCurrBuf(globalIdx[0], globalIdx[1]);
             }
         }
 
@@ -72,13 +77,14 @@ struct StencilKernel
             {
                 // offset for halo, as we only want to go over core cells
                 auto localIdx2D = alpaka::Vec(i, j) + haloSize;
-                auto localIdx1D = alpaka::mapIdx<1>(localIdx2D, smemSize2D)[0u];
                 auto const globalIdx = localIdx2D + blockStartThreadIdx;
 
-                uNextBuf(globalIdx[0], globalIdx[1]) = sdata[localIdx1D] * (1.0 - 2.0 * rX - 2.0 * rY)
-                                                       + sdata[localIdx1D - 1] * rX + sdata[localIdx1D + 1] * rX
-                                                       + sdata[localIdx1D - smemSize2D[1]] * rY
-                                                       + sdata[localIdx1D + smemSize2D[1]] * rY;
+                uNextBuf(globalIdx[0], globalIdx[1])
+                    = sdataMdSpan(localIdx2D[0], localIdx2D[1]) * (1.0 - 2.0 * rX - 2.0 * rY)
+                      + sdataMdSpan(localIdx2D[0], localIdx2D[1] - 1) * rX
+                      + sdataMdSpan(localIdx2D[0], localIdx2D[1] + 1) * rX
+                      + sdataMdSpan(localIdx2D[0] - 1, localIdx2D[1]) * rY
+                      + sdataMdSpan(localIdx2D[0] + 1, localIdx2D[1]) * rY;
             }
         }
     }
